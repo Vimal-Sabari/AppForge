@@ -16,6 +16,7 @@ model User {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   refreshTokens  RefreshToken[]
+  apps           App[]
 }
 
 model RefreshToken {
@@ -25,4 +26,14 @@ model RefreshToken {
   expiresAt  DateTime
   isRevoked  Boolean  @default(false)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model App {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  slug      String   @unique
+  config    Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

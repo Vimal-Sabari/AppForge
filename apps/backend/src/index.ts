@@ -3,6 +3,7 @@ import dotenv from 'dotenv-safe'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import authRoutes from './modules/auth/auth.routes'
+import appsRoutes from './modules/apps/apps.routes'
 import { requireAuth } from './middleware/auth.middleware'
 
 dotenv.config({ allowEmptyValues: true })
@@ -20,6 +21,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use('/api/auth', authRoutes)
+app.use('/api/apps', appsRoutes)
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' })

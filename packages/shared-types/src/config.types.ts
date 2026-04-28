@@ -49,7 +49,7 @@ export const CustomEndpointConfigSchema = z.object({
   path: z.string(),
   method: z.enum(['GET', 'POST', 'PUT', 'DELETE']),
   tableRef: z.string(),
-  filters: z.record(z.unknown()).optional(),
+  filters: z.record(z.string(), z.unknown()).optional(),
 })
 
 export const AppConfigSchema = z.object({

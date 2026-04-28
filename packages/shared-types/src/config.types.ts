@@ -52,6 +52,15 @@ export const CustomEndpointConfigSchema = z.object({
   filters: z.record(z.string(), z.unknown()).optional(),
 })
 
+export const NotificationEventSchema = z.object({
+  trigger: z.enum(['onCreate', 'onUpdate', 'onDelete']),
+  tableRef: z.string(),
+  template: z.object({
+    subject: z.string(),
+    body: z.string(),
+  }),
+})
+
 export const AppConfigSchema = z.object({
   version: z.string(),
   name: z.string(),
@@ -74,6 +83,11 @@ export const AppConfigSchema = z.object({
       customEndpoints: z.array(CustomEndpointConfigSchema).optional(),
     })
     .optional(),
+  notifications: z
+    .object({
+      events: z.array(NotificationEventSchema),
+    })
+    .optional(),
 })
 
 export type FieldConfig = z.infer<typeof FieldConfigSchema>
@@ -81,4 +95,5 @@ export type TableConfig = z.infer<typeof TableConfigSchema>
 export type ComponentConfig = z.infer<typeof ComponentConfigSchema>
 export type PageConfig = z.infer<typeof PageConfigSchema>
 export type CustomEndpointConfig = z.infer<typeof CustomEndpointConfigSchema>
+export type NotificationEvent = z.infer<typeof NotificationEventSchema>
 export type AppConfig = z.infer<typeof AppConfigSchema>

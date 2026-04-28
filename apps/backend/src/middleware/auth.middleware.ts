@@ -42,7 +42,11 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     Object.assign(req, { user })
     next()
   } catch (error) {
-    res.status(401).json({ error: 'Invalid or expired token', code: 'UNAUTHORIZED' })
-    return
+    if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError) {
+      res.status(401).json({ error: 'Invalid or expired token', code: 'UNAUTHORIZED' })
+      return
+    }
+    // Pass other errors (like Redis connection failures) to the global error handler
+    next(error)
   }
 }

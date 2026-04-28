@@ -1,0 +1,32 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "error": "Error"
+  },
+  "table": {
+    "empty": "No records found.",
+    "addNew": "Add New",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this record?"
+  },
+  "form": {
+    "submit": "Submit",
+    "required": "This field is required",
+    "invalid": "Invalid input"
+  },
+  "import": {
+    "upload": "Upload CSV",
+    "preview": "Preview Data",
+    "mapping": "Map Columns",
+    "results": "Import Results"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "logout": "Logout"
+  }
+}

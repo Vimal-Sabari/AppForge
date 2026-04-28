@@ -17,6 +17,13 @@ type DeepPartialConfig = {
   database?: {
     tables?: { name?: string; fields?: { name?: string; type?: string; required?: boolean }[] }[]
   }
+  notifications?: {
+    events?: {
+      trigger?: string
+      tableRef?: string
+      template?: { subject?: string; body?: string }
+    }[]
+  }
 }
 
 export class ConfigValidator {

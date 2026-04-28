@@ -5,6 +5,7 @@ import { QueryBuilder } from '../../core/QueryBuilder'
 import { prisma } from '../../core/prisma'
 import { AppConfig } from 'shared-types'
 import { Prisma } from '@prisma/client'
+import { NotificationService } from '../notifications/notification.service'
 
 interface DynamicRequest extends Request {
   appConfig?: AppConfig
@@ -146,6 +147,20 @@ export async function createRecord(req: Request, res: Response, next: NextFuncti
     )
     const record = await prisma.appData.create(query)
 
+    // We can just set the header if the config *has* a matching event.
+    const hasEvent = dynamicReq.appConfig?.notifications?.events?.some(
+      (e) => e.trigger === 'onCreate' && e.tableRef === tableName
+    )
+    if (hasEvent) {
+      res.setHeader('X-Notification-Sent', 'true')
+      NotificationService.send(
+        dynamicReq.appConfig!,
+        'onCreate',
+        tableName,
+        record.rowData as Record<string, unknown>
+      )
+    }
+
     res.status(201).json({
       data: {
         id: record.id,
@@ -187,6 +202,19 @@ export async function updateRecord(req: Request, res: Response, next: NextFuncti
     const query = QueryBuilder.buildUpdateQuery(id, mergedData)
     const record = await prisma.appData.update(query)
 
+    const hasEvent = dynamicReq.appConfig?.notifications?.events?.some(
+      (e) => e.trigger === 'onUpdate' && e.tableRef === tableName
+    )
+    if (hasEvent) {
+      res.setHeader('X-Notification-Sent', 'true')
+      NotificationService.send(
+        dynamicReq.appConfig!,
+        'onUpdate',
+        tableName,
+        record.rowData as Record<string, unknown>
+      )
+    }
+
     res.json({
       data: {
         id: record.id,
@@ -216,6 +244,19 @@ export async function deleteRecord(req: Request, res: Response, next: NextFuncti
 
     const query = QueryBuilder.buildDeleteQuery(id, appId)
     await prisma.appData.delete(query)
+
+    const hasEvent = dynamicReq.appConfig?.notifications?.events?.some(
+      (e) => e.trigger === 'onDelete' && e.tableRef === tableName
+    )
+    if (hasEvent) {
+      res.setHeader('X-Notification-Sent', 'true')
+      NotificationService.send(
+        dynamicReq.appConfig!,
+        'onDelete',
+        tableName,
+        existing.rowData as Record<string, unknown>
+      )
+    }
 
     res.json({ data: { success: true } })
   } catch (error) {

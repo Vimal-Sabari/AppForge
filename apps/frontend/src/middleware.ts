@@ -1,21 +1,28 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import createMiddleware from 'next-intl/middleware'
+import { locales } from './i18n'
+import { NextRequest, NextResponse } from 'next/server'
+
+const intlMiddleware = createMiddleware({
+  locales,
+  defaultLocale: 'en',
+})
 
 export function middleware(request: NextRequest) {
-  // In a real app, we might want to check the token's validity,
-  // but since we store access token in memory/Zustand, the server-side Next.js
-  // only knows about the refreshToken cookie.
   const refreshToken = request.cookies.get('refreshToken')
+  const pathname = request.nextUrl.pathname
 
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+  // Protect dashboard routes
+  if (pathname.includes('/dashboard')) {
     if (!refreshToken) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      // Redirect to login with locale
+      const locale = pathname.split('/')[1] || 'en'
+      return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
     }
   }
 
-  return NextResponse.next()
+  return intlMiddleware(request)
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/', '/(ta|en)/:path*', '/dashboard/:path*', '/login', '/register'],
 }

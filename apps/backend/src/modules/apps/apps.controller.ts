@@ -2,13 +2,11 @@ import { Request, Response } from 'express'
 import { ConfigValidator } from '../../core/ConfigValidator'
 import { prisma } from '../../core/prisma'
 
-export async function createApp(
-  req: Request & { user?: { id: string } },
-  res: Response
-): Promise<void> {
+export async function createApp(req: Request, res: Response): Promise<void> {
   try {
     const rawConfig = req.body
-    const userId = req.user?.id
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userId = (req as any).user?.id
 
     if (!userId) {
       res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' })

@@ -16,10 +16,11 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get(
   '/google/callback',
   passport.authenticate('google', { session: false, failureRedirect: '/login?error=oauth_failed' }),
-  (req: Request & { user?: { accessToken: string; refreshToken: string } }, res) => {
-    // req.user contains { accessToken, refreshToken }
-    if (req.user) {
-      res.cookie('refreshToken', req.user.refreshToken, {
+  (req: Request, res) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const user = (req as any).user
+    if (user) {
+      res.cookie('refreshToken', user.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -27,7 +28,7 @@ router.get(
       })
       // Redirect to frontend with access token in hash or query param (since we need it on client side)
       // A better way is to set a short-lived cookie for access token just for the redirect, or send it in URL.
-      res.redirect(`http://localhost:3000/dashboard?token=${req.user.accessToken}`)
+      res.redirect(`http://localhost:3000/dashboard?token=${user.accessToken}`)
     } else {
       res.redirect('http://localhost:3000/login?error=oauth_failed')
     }

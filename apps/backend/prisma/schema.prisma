@@ -17,6 +17,7 @@ model User {
   updatedAt      DateTime       @updatedAt
   refreshTokens  RefreshToken[]
   apps           App[]
+  appData        AppData[]
 }
 
 model RefreshToken {
@@ -36,4 +37,20 @@ model App {
   config    Json
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appData   AppData[]
+}
+
+model AppData {
+  id        String   @id @default(uuid())
+  appId     String
+  tableName String
+  rowData   Json
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  app       App      @relation(fields: [appId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([appId, tableName])
 }

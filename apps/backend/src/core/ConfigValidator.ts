@@ -133,7 +133,8 @@ export class ConfigValidator {
     const result = AppConfigSchema.safeParse(normalized)
 
     if (!result.success) {
-      warnings.push(...result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      warnings.push(...result.error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`))
       return { valid: false, config: normalized as AppConfig, warnings }
     }
 

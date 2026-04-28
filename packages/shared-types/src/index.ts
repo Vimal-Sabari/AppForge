@@ -1,3 +1,5 @@
+export * from './auth'
+
 export interface AppConfig {
   version: string
   name: string

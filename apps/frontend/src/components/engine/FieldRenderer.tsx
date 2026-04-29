@@ -13,7 +13,14 @@ export function FieldRenderer({
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    if (onChange) onChange(e.target.value)
+    if (!onChange) return
+
+    const { type, value } = e.target
+    if (type === 'number') {
+      onChange(value === '' ? null : Number(value))
+    } else {
+      onChange(value)
+    }
   }
 
   switch (field.type) {

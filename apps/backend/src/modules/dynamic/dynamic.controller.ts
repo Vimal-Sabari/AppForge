@@ -21,9 +21,17 @@ export async function validateConfigAndTable(
   const { appId, tableName } = dynamicReq.params
 
   try {
-    const config = await ConfigCache.getConfig(appId)
-    if (!config) {
+    const result = await ConfigCache.getConfig(appId)
+    if (!result) {
       res.status(404).json({ error: 'App configuration not found', code: 'APP_NOT_FOUND' })
+      return
+    }
+
+    const { config, userId } = result
+
+    // Security: Ensure the app belongs to the authenticated user
+    if (userId !== dynamicReq.user?.id) {
+      res.status(404).json({ error: 'App not found', code: 'NOT_FOUND' })
       return
     }
 

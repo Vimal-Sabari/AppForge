@@ -1,4 +1,5 @@
 import express from 'express'
+import { env } from './config/env'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -15,7 +16,7 @@ import { initSentry, initSentryErrorHandler } from './config/sentry'
 export function createApp() {
   const app = express()
 
-  initSentry(app)
+  initSentry()
 
   app.use(
     helmet({
@@ -45,7 +46,7 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+      origin: env.FRONTEND_URL || 'http://localhost:3000',
       credentials: true,
       exposedHeaders: ['X-Notification-Sent'],
     })

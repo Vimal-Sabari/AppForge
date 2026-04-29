@@ -9,13 +9,13 @@ export class ConfigCache {
    * @param appId The ID of the app.
    * @returns The AppConfig object or null if not found.
    */
-  static async getConfig(appId: string): Promise<AppConfig | null> {
-    const cacheKey = `app:${appId}:config`
+  static async getConfig(appId: string): Promise<{ config: AppConfig; userId: string } | null> {
+    const cacheKey = `app:${appId}:config_v2`
 
     try {
       const cached = await redis.get(cacheKey)
       if (cached) {
-        return JSON.parse(cached) as AppConfig
+        return JSON.parse(cached)
       }
     } catch (err) {
       console.error('Redis cache read error:', err)
@@ -29,15 +29,18 @@ export class ConfigCache {
       return null
     }
 
-    const config = app.config as unknown as AppConfig
+    const result = {
+      config: app.config as unknown as AppConfig,
+      userId: app.userId,
+    }
 
     try {
-      await redis.setex(cacheKey, 300, JSON.stringify(config)) // 5 minutes TTL
+      await redis.setex(cacheKey, 300, JSON.stringify(result)) // 5 minutes TTL
     } catch (err) {
       console.error('Redis cache write error:', err)
     }
 
-    return config
+    return result
   }
 
   /**

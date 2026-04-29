@@ -144,12 +144,14 @@ export async function createApp(req: Request, res: Response): Promise<void> {
 export async function getApp(req: Request, res: Response): Promise<void> {
   try {
     const { appId } = req.params
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userId = (req as any).user?.id
 
     const app = await prisma.app.findUnique({
       where: { id: appId },
     })
 
-    if (!app) {
+    if (!app || app.userId !== userId) {
       res.status(404).json({ error: 'App not found', code: 'NOT_FOUND' })
       return
     }

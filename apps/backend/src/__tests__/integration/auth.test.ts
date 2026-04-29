@@ -2,12 +2,15 @@ import request from 'supertest'
 import { Express } from 'express'
 import { createApp } from '../../app'
 import { prisma } from '../../core/prisma'
+import { NotificationService } from '../../modules/notifications/notification.service'
 
 describe('Auth Integration Tests', () => {
   let app: Express
 
   beforeAll(async () => {
     app = createApp()
+    // Ensure async initialization completes
+    await NotificationService.ensureInitialized()
     // Clean up database before tests
     await prisma.user.deleteMany()
   })

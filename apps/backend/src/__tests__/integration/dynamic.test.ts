@@ -3,6 +3,7 @@ import { Express } from 'express'
 import { createApp } from '../../app'
 import { prisma } from '../../core/prisma'
 import { env } from '../../config/env'
+import { NotificationService } from '../../modules/notifications/notification.service'
 import jwt from 'jsonwebtoken'
 
 describe('Dynamic CRUD Integration Tests', () => {
@@ -12,6 +13,7 @@ describe('Dynamic CRUD Integration Tests', () => {
 
   beforeAll(async () => {
     app = createApp()
+    await NotificationService.ensureInitialized()
 
     // Create a test user
     const user = await prisma.user.create({

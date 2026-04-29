@@ -3,9 +3,10 @@ import { AppConfig } from 'shared-types'
 
 class NotificationServiceClass {
   private transporter: nodemailer.Transporter | null = null
+  private initPromise: Promise<void> | null = null
 
   constructor() {
-    this.initTransporter()
+    this.initPromise = this.initTransporter()
   }
 
   private async initTransporter() {
@@ -39,12 +40,19 @@ class NotificationServiceClass {
     }
   }
 
+  public async ensureInitialized() {
+    if (this.initPromise) {
+      await this.initPromise
+    }
+  }
+
   public async send(
     appConfig: AppConfig,
     trigger: 'onCreate' | 'onUpdate' | 'onDelete',
     tableRef: string,
     rowData: Record<string, unknown>
   ): Promise<boolean> {
+    await this.ensureInitialized()
     if (!this.transporter) return false
 
     const events = appConfig.notifications?.events || []

@@ -82,7 +82,7 @@ describe('Dynamic CRUD Integration Tests', () => {
         })
 
       expect(res.status).toBe(201)
-      expect(res.body.data.rowData).toMatchObject({
+      expect(res.body.data).toMatchObject({
         title: 'Buy milk',
         completed: false,
       })
@@ -95,7 +95,7 @@ describe('Dynamic CRUD Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
 
       expect(res.status).toBe(200)
-      expect(res.body.data.rowData.title).toBe('Buy milk')
+      expect(res.body.data.title).toBe('Buy milk')
     })
 
     it('should update a record', async () => {
@@ -108,8 +108,8 @@ describe('Dynamic CRUD Integration Tests', () => {
         })
 
       expect(res.status).toBe(200)
-      expect(res.body.data.rowData.title).toBe('Buy milk and bread')
-      expect(res.body.data.rowData.completed).toBe(true)
+      expect(res.body.data.title).toBe('Buy milk and bread')
+      expect(res.body.data.completed).toBe(true)
     })
 
     it('should delete a record', async () => {

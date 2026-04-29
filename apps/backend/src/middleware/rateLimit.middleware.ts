@@ -11,12 +11,11 @@ export const authRateLimiter = rateLimit({
   }),
   windowMs: 15 * 60 * 1000,
   max: 10,
-  keyGenerator: (req: Request) => ipKeyGenerator(req.ip!),
+  keyGenerator: (req: Request) => ipKeyGenerator(req.ip || '0.0.0.0', 6),
   skip: () => env.NODE_ENV === 'test',
   message: { error: 'Too many registration/login attempts, please try again after 15 minutes' },
   standardHeaders: true,
   legacyHeaders: false,
-  validate: false,
 })
 
 export const apiRateLimiter = rateLimit({
@@ -26,12 +25,11 @@ export const apiRateLimiter = rateLimit({
   }),
   windowMs: 60 * 1000,
   max: 100,
-  keyGenerator: (req: Request) => ipKeyGenerator(req.ip!),
+  keyGenerator: (req: Request) => ipKeyGenerator(req.ip || '0.0.0.0', 6),
   skip: () => env.NODE_ENV === 'test',
   message: { error: 'Too many API requests, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
-  validate: false,
 })
 
 export const importRateLimiter = rateLimit({
@@ -41,10 +39,9 @@ export const importRateLimiter = rateLimit({
   }),
   windowMs: 60 * 60 * 1000,
   max: 5,
-  keyGenerator: (req: Request) => ipKeyGenerator(req.ip!),
+  keyGenerator: (req: Request) => ipKeyGenerator(req.ip || '0.0.0.0', 6),
   skip: () => env.NODE_ENV === 'test',
   message: { error: 'Import quota exceeded. Maximum 5 imports per hour.' },
   standardHeaders: true,
   legacyHeaders: false,
-  validate: false,
 })

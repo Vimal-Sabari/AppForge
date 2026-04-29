@@ -303,13 +303,13 @@ export default function NewAppPage() {
 
               <div className="flex space-x-4">
                 <Link
-                  href={`/dashboard/${createdAppId}/settings`}
+                  href={`/${locale}/dashboard/${createdAppId}/settings`}
                   className="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   Edit Config
                 </Link>
                 <Link
-                  href={`/dashboard/${createdAppId}${validationResult?.config?.ui?.pages?.[0]?.path ? (validationResult.config.ui.pages[0].path.startsWith('/') ? validationResult.config.ui.pages[0].path : '/' + validationResult.config.ui.pages[0].path) : '/'}`}
+                  href={`/${locale}/dashboard/${createdAppId}${validationResult?.config?.ui?.pages?.[0]?.path ? (validationResult.config.ui.pages[0].path.startsWith('/') ? validationResult.config.ui.pages[0].path : '/' + validationResult.config.ui.pages[0].path) : '/'}`}
                   className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors shadow-sm inline-flex items-center"
                 >
                   <Play className="w-4 h-4 mr-2" fill="currentColor" />

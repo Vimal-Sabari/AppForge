@@ -17,13 +17,21 @@ test.describe('App Creation Flow', () => {
 
     // 2. Create App
     await page.click('text=New App')
-    await page.fill('input[placeholder*="App Name"]', 'My Playwright App')
 
-    // Choose a template (if any) or just click create
-    await page.click('button:has-text("Create App")')
+    // The page loads with a sample config by default.
+    // Click Validate Config
+    await page.click('text=Validate Config')
+
+    // Wait for step 2
+    await expect(page.locator('text=Review Configuration')).toBeVisible()
+
+    // Click Create App
+    await page.click('text=Looks good — Create App')
 
     // 3. Verify App listed
-    await expect(page.locator('text=My Playwright App').first()).toBeVisible()
+    // The sample app name is "Employee Directory"
+    await page.goto('/en/dashboard')
+    await expect(page.locator('text=Employee Directory').first()).toBeVisible()
 
     // 4. Use App
     await page.click('text=Open App')

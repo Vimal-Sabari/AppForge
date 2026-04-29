@@ -19,7 +19,6 @@ describe('Dynamic CRUD Integration Tests', () => {
         password: 'password',
       },
     })
-    userId = user.id
     authToken = jwt.sign(
       { id: user.id, email: user.email },
       process.env.ACCESS_SECRET || 'secret',

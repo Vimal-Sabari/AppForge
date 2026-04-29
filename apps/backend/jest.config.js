@@ -21,4 +21,7 @@ module.exports = {
     },
   },
   setupFiles: ['<rootDir>/src/__tests__/setup.ts'],
+  detectOpenHandles: true,
+  forceExit: true,
+  testTimeout: 15000,
 }

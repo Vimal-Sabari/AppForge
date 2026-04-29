@@ -158,8 +158,17 @@ describe('Dynamic CRUD Integration Tests', () => {
     // Cleanup NotificationService
     await NotificationService.shutdown()
 
-    // Disconnect Prisma
+    // Ensure all pending queries complete
     await prisma.$disconnect()
+
+    // Close the Express app server if it's running
+    // @ts-expect-error - close might not exist on all Express types but we check at runtime
+    if (app && typeof app.close === 'function') {
+      await new Promise<void>((resolve) => {
+        // @ts-expect-error - calling close if it exists
+        app.close(() => resolve())
+      })
+    }
 
     // Give process time to clean up
     await new Promise((resolve) => {

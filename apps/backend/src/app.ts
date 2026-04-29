@@ -12,6 +12,7 @@ import { requireAuth } from './middleware/auth.middleware'
 import { errorHandler } from './middleware/error.middleware'
 import { requestLogger } from './middleware/logging.middleware'
 import { initSentry, initSentryErrorHandler } from './config/sentry'
+import { prisma } from './core/prisma'
 
 export function createApp() {
   const app = express()

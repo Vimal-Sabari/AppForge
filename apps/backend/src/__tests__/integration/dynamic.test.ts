@@ -16,7 +16,7 @@ describe('Dynamic CRUD Integration Tests', () => {
     const user = await prisma.user.create({
       data: {
         email: 'dynamic@example.com',
-        password: 'password',
+        passwordHash: 'password',
       },
     })
     authToken = jwt.sign(
@@ -47,7 +47,8 @@ describe('Dynamic CRUD Integration Tests', () => {
             ],
           },
           ui: { pages: [] },
-        } as unknown as Record<string, unknown>,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any,
       },
     })) as unknown as { id: string }
   })

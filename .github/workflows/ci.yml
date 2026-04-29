@@ -48,6 +48,8 @@ jobs:
         run: pnpm install
 
       - name: Build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001
         run: pnpm run build
 
       - name: Backend Unit Tests

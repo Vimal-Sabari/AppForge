@@ -19,18 +19,18 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'pnpm run dev',
+      command: process.env.CI ? 'pnpm run start' : 'pnpm run dev',
       url: 'http://localhost:3000',
       reuseExistingServer: !process.env.CI,
       cwd: './',
-      timeout: 120000,
+      timeout: 180000,
     },
     {
-      command: 'pnpm run dev',
+      command: process.env.CI ? 'pnpm run start' : 'pnpm run dev',
       url: 'http://localhost:3001',
       reuseExistingServer: !process.env.CI,
       cwd: '../backend',
-      timeout: 120000,
+      timeout: 180000,
     },
   ],
 })

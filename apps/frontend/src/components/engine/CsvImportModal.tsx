@@ -43,7 +43,7 @@ export function CsvImportModal({ tableConfig, appId, onClose, onSuccess }: CsvIm
       preview: 5,
       complete: (results) => {
         setHeaders(results.meta.fields || [])
-        setCsvData(results.data)
+        setCsvData(results.data as Record<string, string | number | boolean | null>[])
 
         // Auto-mapping
         const newMapping: Record<string, string> = {}

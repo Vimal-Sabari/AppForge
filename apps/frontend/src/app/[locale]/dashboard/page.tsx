@@ -7,6 +7,7 @@ import { AppHeader } from '@/components/shared/AppHeader'
 import { Plus, LayoutTemplate, Clock, ArrowRight } from 'lucide-react'
 import { useAuthStore } from '@/lib/store/auth.store'
 import { AppConfig } from 'shared-types'
+import { useLocale } from 'next-intl'
 
 interface AppModel {
   id: string
@@ -19,6 +20,7 @@ interface AppModel {
 
 export default function DashboardPage() {
   const { accessToken } = useAuthStore()
+  const locale = useLocale()
 
   const { data, isLoading } = useQuery({
     queryKey: ['apps'],
@@ -46,7 +48,7 @@ export default function DashboardPage() {
             <p className="text-sm text-gray-500 mt-1">Manage your generated applications</p>
           </div>
           <Link
-            href="/dashboard/new"
+            href={`/${locale}/dashboard/new`}
             className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -104,13 +106,13 @@ export default function DashboardPage() {
 
                   <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
                     <Link
-                      href={`/dashboard/${app.id}/settings`}
+                      href={`/${locale}/dashboard/${app.id}/settings`}
                       className="text-sm text-gray-500 hover:text-gray-900 font-medium transition-colors"
                     >
                       Settings
                     </Link>
                     <Link
-                      href={`/dashboard/${app.id}${firstPagePath.startsWith('/') ? firstPagePath : '/' + firstPagePath}`}
+                      href={`/${locale}/dashboard/${app.id}${firstPagePath.startsWith('/') ? firstPagePath : '/' + firstPagePath}`}
                       className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
                     >
                       Open App
@@ -130,7 +132,7 @@ export default function DashboardPage() {
               snippet.
             </p>
             <Link
-              href="/dashboard/new"
+              href={`/${locale}/dashboard/new`}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium shadow-sm"
             >
               <Plus className="w-4 h-4 mr-2" />

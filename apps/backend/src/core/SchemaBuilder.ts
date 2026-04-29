@@ -15,7 +15,19 @@ export class SchemaBuilder {
 
       switch (field.type) {
         case 'text':
-          fieldSchema = z.string()
+        case 'textarea':
+        case 'email':
+        case 'date':
+        case 'file':
+          if (field.type === 'email') fieldSchema = z.string().email()
+          else if (field.type === 'date') fieldSchema = z.string().datetime()
+          else if (field.type === 'textarea') fieldSchema = z.string().max(5000)
+          else fieldSchema = z.string()
+
+          if (field.validation?.min !== undefined)
+            fieldSchema = (fieldSchema as z.ZodString).min(field.validation.min)
+          if (field.validation?.max !== undefined)
+            fieldSchema = (fieldSchema as z.ZodString).max(field.validation.max)
           break
         case 'number':
           fieldSchema = z.number()
@@ -27,12 +39,6 @@ export class SchemaBuilder {
         case 'boolean':
           fieldSchema = z.boolean()
           break
-        case 'date':
-          fieldSchema = z.string().datetime()
-          break
-        case 'email':
-          fieldSchema = z.string().email()
-          break
         case 'select':
           if (field.options && field.options.length > 0) {
             fieldSchema = z.enum(field.options as [string, ...string[]])
@@ -40,14 +46,8 @@ export class SchemaBuilder {
             fieldSchema = z.string()
           }
           break
-        case 'textarea':
-          fieldSchema = z.string().max(5000)
-          break
-        case 'file':
-          fieldSchema = z.string()
-          break
         default:
-          fieldSchema = z.any()
+          fieldSchema = z.string()
       }
 
       if (field.validation?.pattern && field.type !== 'number' && field.type !== 'boolean') {

@@ -8,14 +8,24 @@ const intlMiddleware = createMiddleware({
 })
 
 export function middleware(request: NextRequest) {
-  const refreshToken = request.cookies.get('refreshToken')
   const pathname = request.nextUrl.pathname
+  const localeMatch = pathname.match(/^\/(en|ta)/)
+  const locale = localeMatch ? localeMatch[1] : 'en'
+
+  // If accessing root or un-prefixed routes that should be localized
+  if (
+    pathname === '/' ||
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/dashboard'
+  ) {
+    return intlMiddleware(request)
+  }
 
   // Protect dashboard routes
   if (pathname.includes('/dashboard')) {
+    const refreshToken = request.cookies.get('refreshToken')
     if (!refreshToken) {
-      // Redirect to login with locale
-      const locale = pathname.split('/')[1] || 'en'
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
     }
   }
@@ -24,5 +34,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/(ta|en)/:path*', '/dashboard/:path*', '/login', '/register'],
+  matcher: ['/((?!api|_next|.*\\..*).*)'],
 }

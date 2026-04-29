@@ -41,9 +41,8 @@ export class ConfigValidator {
       normalized.version = '1.0'
     }
 
-    if (!normalized.name) {
-      warnings.push('name missing, defaulted to "Untitled App"')
-      normalized.name = 'Untitled App'
+    if (!normalized.name || normalized.name.trim() === '') {
+      return { valid: false, config: normalized as AppConfig, warnings: ['name is required'] }
     }
 
     if (!normalized.auth) {
@@ -72,9 +71,16 @@ export class ConfigValidator {
         warnings.push(`invalid ui.theme '${normalized.ui.theme}', defaulted to 'light'`)
         normalized.ui.theme = 'light'
       }
-      if (!normalized.ui.pages || !Array.isArray(normalized.ui.pages)) {
-        warnings.push('ui.pages missing or invalid, defaulted to []')
-        normalized.ui.pages = []
+      if (
+        !normalized.ui.pages ||
+        !Array.isArray(normalized.ui.pages) ||
+        normalized.ui.pages.length === 0
+      ) {
+        return {
+          valid: false,
+          config: normalized as AppConfig,
+          warnings: ['at least one page is required'],
+        }
       } else {
         normalized.ui.pages.forEach((page, pIdx) => {
           if (!page.id) page.id = `page-${pIdx}`

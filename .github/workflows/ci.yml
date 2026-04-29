@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: appforge
+          POSTGRES_PASSWORD: appforge_pass
+          POSTGRES_DB: appforge_test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Backend Unit Tests
+        run: |
+          cd apps/backend
+          pnpm run test src/__tests__/unit
+
+      - name: Backend Integration Tests
+        env:
+          DATABASE_URL: postgresql://appforge:appforge_pass@localhost:5432/appforge_test_db?schema=public
+          ACCESS_SECRET: test_secret
+          REFRESH_SECRET: test_secret
+        run: |
+          cd apps/backend
+          npx prisma db push
+          pnpm run test src/__tests__/integration
+
+      - name: Frontend Tests
+        run: |
+          cd apps/frontend
+          pnpm run test
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E Tests
+        run: |
+          cd apps/frontend
+          npx playwright test

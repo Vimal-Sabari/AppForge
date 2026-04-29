@@ -118,7 +118,7 @@ export function parseConfig(raw: unknown): {
   const result = AppConfigSchema.safeParse(normalized)
 
   if (!result.success) {
-    const zodErrors = result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`)
+    const zodErrors = result.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`)
     errors.push(...zodErrors)
     return { config: normalized as AppConfig, warnings, errors }
   }

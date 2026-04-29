@@ -6,9 +6,11 @@ import { RegisterSchema, RegisterInput } from 'shared-types'
 import { useAuthStore } from '@/lib/store/auth.store'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const locale = useLocale()
   const { setUser } = useAuthStore()
   const [error, setError] = useState<string | null>(null)
 
@@ -36,7 +38,7 @@ export default function RegisterPage() {
       }
 
       setUser({ id: 'unknown', email: data.email }, json.accessToken)
-      router.push('/dashboard')
+      router.push(`/${locale}/dashboard`)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Registration failed')
     }
@@ -94,7 +96,7 @@ export default function RegisterPage() {
 
         <div className="mt-4 text-center text-sm">
           Already have an account?{` `}
-          <a href="/login" className="text-blue-600 hover:underline">
+          <a href={`/${locale}/login`} className="text-blue-600 hover:underline">
             Login
           </a>
         </div>

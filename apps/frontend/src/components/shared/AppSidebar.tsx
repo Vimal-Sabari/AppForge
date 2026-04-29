@@ -3,6 +3,7 @@ import { AppConfig } from 'shared-types'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, FileText, Menu, X } from 'lucide-react'
+import { useLocale } from 'next-intl'
 
 interface AppSidebarProps {
   appConfig: AppConfig
@@ -11,6 +12,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ appConfig, appId }: AppSidebarProps) {
   const pathname = usePathname()
+  const locale = useLocale()
   const [isOpen, setIsOpen] = React.useState(false)
 
   return (
@@ -41,7 +43,7 @@ export function AppSidebar({ appConfig, appId }: AppSidebarProps) {
 
           <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             {appConfig.ui.pages.map((page) => {
-              const href = `/dashboard/${appId}${page.path}`
+              const href = `/${locale}/dashboard/${appId}${page.path}`
               const isActive = pathname === href
 
               return (
@@ -64,7 +66,7 @@ export function AppSidebar({ appConfig, appId }: AppSidebarProps) {
 
           <div className="px-6 py-4 border-t border-gray-800">
             <Link
-              href="/dashboard"
+              href={`/${locale}/dashboard`}
               className="flex items-center text-sm text-gray-400 hover:text-white transition-colors"
             >
               <LayoutDashboard className="w-4 h-4 mr-2" />

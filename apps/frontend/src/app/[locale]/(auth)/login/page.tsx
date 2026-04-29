@@ -6,9 +6,11 @@ import { LoginSchema, LoginInput } from 'shared-types'
 import { useAuthStore } from '@/lib/store/auth.store'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 
 export default function LoginPage() {
   const router = useRouter()
+  const locale = useLocale()
   const { setUser } = useAuthStore()
   const [error, setError] = useState<string | null>(null)
 
@@ -39,7 +41,7 @@ export default function LoginPage() {
       // just the access token. Let's create a dummy user for now or fetch it.
       // Ideally we should decode the JWT or have the backend return { user, accessToken }.
       setUser({ id: 'unknown', email: data.email }, json.accessToken)
-      router.push('/dashboard')
+      router.push(`/${locale}/dashboard`)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed')
     }
@@ -97,7 +99,7 @@ export default function LoginPage() {
 
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{` `}
-          <a href="/register" className="text-blue-600 hover:underline">
+          <a href={`/${locale}/register`} className="text-blue-600 hover:underline">
             Register
           </a>
         </div>

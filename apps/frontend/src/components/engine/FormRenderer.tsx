@@ -33,9 +33,11 @@ export function FormRenderer({ fields, onSubmit, defaultValues, isLoading }: For
           break
         case 'email':
           fieldSchema = z.string().email('Invalid email')
+          if (field.required) fieldSchema = (fieldSchema as z.ZodString).min(1, 'Required')
           break
         default:
           fieldSchema = z.string()
+          if (field.required) fieldSchema = (fieldSchema as z.ZodString).min(1, 'Required')
           if (field.validation?.pattern) {
             fieldSchema = (fieldSchema as z.ZodString).regex(
               new RegExp(field.validation.pattern),
@@ -150,12 +152,12 @@ export function FormRenderer({ fields, onSubmit, defaultValues, isLoading }: For
           return (
             <div key={field.name} className="flex flex-col space-y-1">
               {field.type !== 'boolean' && (
-                <label className="text-sm font-medium text-gray-700">
+                <label htmlFor={field.name} className="text-sm font-medium text-gray-700">
                   {field.label || field.name}
                   {field.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
               )}
-              {InputComponent}
+              {React.cloneElement(InputComponent as React.ReactElement, { id: field.name })}
               {hasError && (
                 <span className="text-xs text-red-500">
                   {errors[field.name]?.message as string}

@@ -2,6 +2,7 @@ import request from 'supertest'
 import { Express } from 'express'
 import { createApp } from '../../app'
 import { prisma } from '../../core/prisma'
+import { env } from '../../config/env'
 import jwt from 'jsonwebtoken'
 
 describe('Dynamic CRUD Integration Tests', () => {
@@ -19,7 +20,7 @@ describe('Dynamic CRUD Integration Tests', () => {
         passwordHash: 'password',
       },
     })
-    authToken = jwt.sign({ sub: user.id }, process.env.ACCESS_SECRET || 'secret', {
+    authToken = jwt.sign({ sub: user.id }, env.ACCESS_SECRET, {
       expiresIn: '1h',
     })
 

@@ -4,9 +4,10 @@ import { prisma } from '../../core/prisma'
 import { redis } from '../../core/redis'
 import crypto from 'crypto'
 import { LoginInput, RegisterInput } from 'shared-types'
+import { env } from '../../config/env'
 
-const ACCESS_SECRET = process.env.ACCESS_SECRET || 'fallback_access_secret'
-const REFRESH_SECRET = process.env.REFRESH_SECRET || 'fallback_refresh_secret'
+const ACCESS_SECRET = env.ACCESS_SECRET
+const REFRESH_SECRET = env.REFRESH_SECRET
 
 /**
  * Generates an access and refresh token pair for a user

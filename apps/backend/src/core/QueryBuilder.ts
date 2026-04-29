@@ -21,6 +21,7 @@ export class QueryBuilder {
     }
     return sanitized
   }
+
   /**
    * Builds the findMany query options for listing app_data rows.
    * @param appId The ID of the app.
@@ -92,7 +93,7 @@ export class QueryBuilder {
         appId,
         tableName,
         createdBy: userId,
-        rowData: sanitized as Prisma.InputJsonValue,
+        rowData: sanitized as Prisma.JsonObject,
       },
     }
   }
@@ -108,7 +109,7 @@ export class QueryBuilder {
     return {
       where: { id },
       data: {
-        rowData: sanitized as Prisma.InputJsonValue,
+        rowData: sanitized as Prisma.JsonObject,
       },
     }
   }
@@ -119,10 +120,9 @@ export class QueryBuilder {
    * @param appId The ID of the app (to ensure it belongs to the app).
    * @returns Prisma delete input.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static buildDeleteQuery(id: string, _appId: string): Prisma.AppDataDeleteArgs {
+  static buildDeleteQuery(id: string, appId: string): Prisma.AppDataDeleteArgs {
     return {
-      where: { id },
+      where: { id, appId },
     }
   }
 }

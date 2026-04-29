@@ -16,6 +16,7 @@ export const authRateLimiter = rateLimit({
   message: { error: 'Too many registration/login attempts, please try again after 15 minutes' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false }, // Disable header validation to avoid warnings in dev
 })
 
 export const apiRateLimiter = rateLimit({
@@ -31,6 +32,7 @@ export const apiRateLimiter = rateLimit({
   message: { error: 'Too many API requests, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
 })
 
 export const importRateLimiter = rateLimit({
@@ -46,4 +48,5 @@ export const importRateLimiter = rateLimit({
   message: { error: 'Import quota exceeded. Maximum 5 imports per hour.' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
 })

@@ -30,12 +30,6 @@ export function errorHandler(err: unknown, req: Request, res: Response, _next: N
       })
       return
     }
-    // Handle other known Prisma errors genericly
-    res.status(400).json({
-      error: 'Database operation failed',
-      code: `PRISMA_ERROR_${err.code}`,
-    })
-    return
   }
 
   // Fallback for unknown errors (do not leak stack trace)

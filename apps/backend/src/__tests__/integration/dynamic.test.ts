@@ -19,11 +19,9 @@ describe('Dynamic CRUD Integration Tests', () => {
         passwordHash: 'password',
       },
     })
-    authToken = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.ACCESS_SECRET || 'secret',
-      { expiresIn: '1h' }
-    )
+    authToken = jwt.sign({ sub: user.id }, process.env.ACCESS_SECRET || 'secret', {
+      expiresIn: '1h',
+    })
 
     // Create a test app config
     testApp = (await prisma.app.create({
@@ -143,7 +141,7 @@ describe('Dynamic CRUD Integration Tests', () => {
           title: 123, // Should be string
         })
 
-      expect(res.status).toBe(400)
+      expect(res.status).toBe(422)
     })
   })
 })

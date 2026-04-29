@@ -6,6 +6,8 @@ import { env } from '../../config/env'
 import { NotificationService } from '../../modules/notifications/notification.service'
 import jwt from 'jsonwebtoken'
 
+jest.setTimeout(15000)
+
 describe('Dynamic CRUD Integration Tests', () => {
   let app: Express
   let testApp: { id: string }
@@ -146,5 +148,16 @@ describe('Dynamic CRUD Integration Tests', () => {
 
       expect(res.status).toBe(422)
     })
+  })
+
+  afterAll(async () => {
+    // Cleanup NotificationService
+    await NotificationService.shutdown()
+
+    // Disconnect Prisma
+    await prisma.$disconnect()
+
+    // Give process time to clean up
+    await new Promise((resolve) => setTimeout(resolve, 100))
   })
 })

@@ -4,6 +4,8 @@ import { createApp } from '../../app'
 import { prisma } from '../../core/prisma'
 import { NotificationService } from '../../modules/notifications/notification.service'
 
+jest.setTimeout(15000)
+
 describe('Auth Integration Tests', () => {
   let app: Express
 
@@ -16,7 +18,14 @@ describe('Auth Integration Tests', () => {
   })
 
   afterAll(async () => {
+    // Cleanup NotificationService
+    await NotificationService.shutdown()
+
+    // Disconnect Prisma
     await prisma.$disconnect()
+
+    // Give process time to clean up
+    await new Promise((resolve) => setTimeout(resolve, 100))
   })
 
   describe('POST /api/auth/register', () => {

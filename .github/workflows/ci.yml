@@ -60,7 +60,7 @@ jobs:
           BACKEND_URL: http://localhost:3001
         run: |
           cd apps/backend
-          pnpm run test src/__tests__/unit
+          pnpm run test src/__tests__/unit -- --detectOpenHandles --forceExit
 
       - name: Backend Integration Tests
         env:
@@ -73,7 +73,7 @@ jobs:
         run: |
           cd apps/backend
           npx prisma db push
-          pnpm run test src/__tests__/integration
+          pnpm run test src/__tests__/integration -- --detectOpenHandles --forceExit
 
       - name: Frontend Tests
         run: |

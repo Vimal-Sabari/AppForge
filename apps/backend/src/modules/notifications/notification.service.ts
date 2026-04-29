@@ -92,6 +92,14 @@ class NotificationServiceClass {
 
     return sent
   }
+
+  public async shutdown() {
+    if (this.transporter) {
+      this.transporter.close()
+      this.transporter = null
+      this.initPromise = null
+    }
+  }
 }
 
 export const NotificationService = new NotificationServiceClass()

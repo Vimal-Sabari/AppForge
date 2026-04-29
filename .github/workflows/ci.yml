@@ -72,7 +72,13 @@ jobs:
           BACKEND_URL: http://localhost:3001
         run: |
           cd apps/backend
-          npx prisma db push
+          # Wait for PostgreSQL to be ready
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo 'Waiting for PostgreSQL...'
+            sleep 1
+          done
+          # Push database schema
+          npx prisma db push --skip-generate
           pnpm run test src/__tests__/integration -- --detectOpenHandles --forceExit
 
       - name: Frontend Tests

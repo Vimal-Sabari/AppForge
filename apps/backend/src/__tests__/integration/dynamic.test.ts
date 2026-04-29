@@ -7,6 +7,8 @@ import { NotificationService } from '../../modules/notifications/notification.se
 import jwt from 'jsonwebtoken'
 
 jest.setTimeout(15000)
+jest.clearAllMocks()
+jest.resetModules()
 
 describe('Dynamic CRUD Integration Tests', () => {
   let app: Express
@@ -54,13 +56,6 @@ describe('Dynamic CRUD Integration Tests', () => {
         } as any,
       },
     })) as unknown as { id: string }
-  })
-
-  afterAll(async () => {
-    await prisma.appData.deleteMany()
-    await prisma.app.deleteMany()
-    await prisma.user.deleteMany()
-    await prisma.$disconnect()
   })
 
   describe('CRUD Operations', () => {
@@ -151,6 +146,15 @@ describe('Dynamic CRUD Integration Tests', () => {
   })
 
   afterAll(async () => {
+    // Data cleanup
+    try {
+      await prisma.appData.deleteMany()
+      await prisma.app.deleteMany()
+      await prisma.user.deleteMany()
+    } catch (err) {
+      // Ignore cleanup errors
+    }
+
     // Cleanup NotificationService
     await NotificationService.shutdown()
 
@@ -158,6 +162,9 @@ describe('Dynamic CRUD Integration Tests', () => {
     await prisma.$disconnect()
 
     // Give process time to clean up
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => {
+      const timeout = setTimeout(resolve, 100)
+      if (timeout.unref) timeout.unref()
+    })
   })
 })

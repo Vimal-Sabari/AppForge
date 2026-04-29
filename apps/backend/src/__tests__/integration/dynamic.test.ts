@@ -158,29 +158,25 @@ describe('Dynamic CRUD Integration Tests', () => {
       await prisma.appData.deleteMany()
       await prisma.app.deleteMany()
       await prisma.user.deleteMany()
-    } catch (err) {
+    } catch {
       // Ignore cleanup errors
     }
 
-    // Cleanup NotificationService
-    await NotificationService.shutdown()
-
-    // Ensure all pending queries complete
-    await prisma.$disconnect()
-
-    // Close the Express app server if it's running
-    // @ts-expect-error - close might not exist on all Express types but we check at runtime
-    if (app && typeof app.close === 'function') {
-      await new Promise<void>((resolve) => {
-        // @ts-expect-error - calling close if it exists
-        app.close(() => resolve())
-      })
+    try {
+      await NotificationService.shutdown()
+    } catch {
+      // Ignore shutdown errors
     }
 
-    // Give process time to clean up
+    try {
+      await prisma.$disconnect()
+    } catch {
+      // Ignore disconnect errors
+    }
+
+    // Final delay to allow all connections to close
     await new Promise((resolve) => {
-      const timeout = setTimeout(resolve, 100)
-      if (timeout.unref) timeout.unref()
+      setTimeout(resolve, 500)
     })
   })
 })

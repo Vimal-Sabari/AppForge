@@ -15,13 +15,22 @@ export async function register(req: Request, res: Response) {
     const { accessToken, refreshToken } = await authService.register(data)
 
     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
-    res.json({ accessToken })
+    res.status(201).json({
+      accessToken,
+      refreshToken,
+      user: { email: data.email },
+    })
   } catch (error: unknown) {
     if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
       res.status(400).json({
         error: 'Validation failed',
         code: 'VALIDATION_ERROR',
         details: (error as Error & { errors: unknown }).errors,
+      })
+    } else if (error instanceof Error && error.message === 'Email already in use') {
+      res.status(409).json({
+        error: error.message,
+        code: 'DUPLICATE_EMAIL',
       })
     } else {
       res.status(400).json({

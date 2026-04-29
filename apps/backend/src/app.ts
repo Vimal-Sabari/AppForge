@@ -60,8 +60,13 @@ export function createApp() {
   app.use('/api/apps/:appId/data/:tableName', dynamicRoutes)
   app.use('/api/apps/:appId/import', importRoutes)
 
-  app.get('/health', (req, res) => {
-    res.json({ status: 'ok' })
+  app.get('/health', async (req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`
+      res.json({ status: 'ok', database: 'connected' })
+    } catch (error) {
+      res.status(503).json({ status: 'error', database: 'disconnected' })
+    }
   })
 
   app.get('/api/protected', requireAuth, (req: express.Request & { user?: unknown }, res) => {

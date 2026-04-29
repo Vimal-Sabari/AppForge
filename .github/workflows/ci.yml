@@ -104,5 +104,7 @@ jobs:
           BACKEND_URL: http://localhost:3001
           NEXT_PUBLIC_API_URL: http://localhost:3001
         run: |
-          cd apps/frontend
+          cd apps/backend
+          npx prisma db push --skip-generate
+          cd ../frontend
           pnpm exec playwright test

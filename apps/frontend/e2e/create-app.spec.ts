@@ -2,6 +2,10 @@ import { test, expect } from '@playwright/test'
 
 test.describe('App Creation Flow', () => {
   test('should register and create a new app', async ({ page }) => {
+    // Debug: Log browser console messages
+    page.on('console', (msg) => console.log('BROWSER:', msg.text()))
+    page.on('pageerror', (err) => console.log('BROWSER ERROR:', err.message))
+
     // 1. Registration
     await page.goto('/en/register')
     await page.fill('input[name="email"]', `test-${Date.now()}@example.com`)

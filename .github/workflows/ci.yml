@@ -101,6 +101,7 @@ jobs:
           REFRESH_SECRET: test_refresh_secret_long_enough_20
           FRONTEND_URL: http://localhost:3000
           BACKEND_URL: http://localhost:3001
+          NEXT_PUBLIC_API_URL: http://localhost:3001
         run: |
           cd apps/frontend
           pnpm exec playwright test

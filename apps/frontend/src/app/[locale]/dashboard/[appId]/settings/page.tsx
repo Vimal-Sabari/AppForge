@@ -25,7 +25,7 @@ export default function AppSettingsPage({ params }: { params: { appId: string } 
   const router = useRouter()
   const { accessToken } = useAuthStore()
   const queryClient = useQueryClient()
-  const appId = params.appId
+  const appId = params?.appId
 
   const [jsonInput, setJsonInput] = useState('')
   const [warnings, setWarnings] = useState<string[]>([])
@@ -36,7 +36,7 @@ export default function AppSettingsPage({ params }: { params: { appId: string } 
   const { data: appData, isLoading } = useQuery({
     queryKey: ['apps', appId],
     queryFn: async () => {
-      const res = await fetch(`http://localhost:3001/api/apps/${appId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/apps/${appId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       })
       if (!res.ok) throw new Error('Failed to fetch app')
@@ -53,7 +53,7 @@ export default function AppSettingsPage({ params }: { params: { appId: string } 
 
   const updateMutation = useMutation({
     mutationFn: async (configStr: string) => {
-      const res = await fetch(`http://localhost:3001/api/apps/${appId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/apps/${appId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ export default function AppSettingsPage({ params }: { params: { appId: string } 
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`http://localhost:3001/api/apps/${appId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/apps/${appId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${accessToken}` },
       })

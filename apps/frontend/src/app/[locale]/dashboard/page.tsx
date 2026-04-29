@@ -25,7 +25,7 @@ export default function DashboardPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['apps'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:3001/api/apps', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/apps`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

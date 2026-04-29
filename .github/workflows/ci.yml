@@ -87,7 +87,9 @@ jobs:
           pnpm run test
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: |
+          cd apps/frontend
+          npx playwright install --with-deps
 
       - name: Run E2E Tests
         env:
@@ -99,4 +101,4 @@ jobs:
           BACKEND_URL: http://localhost:3001
         run: |
           cd apps/frontend
-          npx playwright test
+          pnpm exec playwright test

@@ -12,6 +12,10 @@ describe('Auth Integration Tests', () => {
   let app: Express
 
   beforeAll(async () => {
+    // Suppress console output during tests
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    jest.spyOn(console, 'log').mockImplementation(() => {})
+
     app = createApp()
     // Ensure async initialization completes
     await NotificationService.ensureInitialized()
@@ -20,6 +24,9 @@ describe('Auth Integration Tests', () => {
   })
 
   afterAll(async () => {
+    // Restore console methods
+    jest.restoreAllMocks()
+
     // Cleanup in correct order
     await NotificationService.shutdown()
 

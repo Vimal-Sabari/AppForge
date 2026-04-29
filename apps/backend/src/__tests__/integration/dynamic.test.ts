@@ -16,6 +16,10 @@ describe('Dynamic CRUD Integration Tests', () => {
   let authToken: string
 
   beforeAll(async () => {
+    // Suppress console output during tests
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    jest.spyOn(console, 'log').mockImplementation(() => {})
+
     app = createApp()
     await NotificationService.ensureInitialized()
 
@@ -146,6 +150,9 @@ describe('Dynamic CRUD Integration Tests', () => {
   })
 
   afterAll(async () => {
+    // Restore console methods
+    jest.restoreAllMocks()
+
     // Data cleanup
     try {
       await prisma.appData.deleteMany()

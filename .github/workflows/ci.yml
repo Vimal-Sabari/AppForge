@@ -94,7 +94,6 @@ jobs:
       - name: Run E2E Tests
         env:
           NODE_ENV: test
-          PORT: 3001
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/appforge_test?schema=public
           REDIS_URL: redis://localhost:6379
           ACCESS_SECRET: test_access_secret_long_enough_20

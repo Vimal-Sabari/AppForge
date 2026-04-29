@@ -26,8 +26,8 @@ export default defineConfig({
       timeout: 180000,
     },
     {
-      command: process.env.CI ? 'pnpm run start' : 'pnpm run dev',
-      url: 'http://localhost:3001',
+      command: process.env.CI ? 'PORT=3001 pnpm run start' : 'pnpm run dev',
+      url: 'http://localhost:3001/health',
       reuseExistingServer: !process.env.CI,
       cwd: '../backend',
       timeout: 180000,

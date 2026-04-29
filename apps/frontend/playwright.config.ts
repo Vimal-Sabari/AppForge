@@ -23,12 +23,14 @@ export default defineConfig({
       url: 'http://localhost:3000',
       reuseExistingServer: !process.env.CI,
       cwd: './',
+      timeout: 120000,
     },
     {
       command: 'pnpm run dev',
       url: 'http://localhost:3001',
       reuseExistingServer: !process.env.CI,
       cwd: '../backend',
+      timeout: 120000,
     },
   ],
 })

@@ -10,8 +10,8 @@ import { AlertCircle } from 'lucide-react'
 
 export default function AppDynamicPage() {
   const params = useParams()
-  const appId = params.appId as string
-  const slugArray = params.slug as string[]
+  const appId = params?.appId as string
+  const slugArray = params?.slug as string[]
   const slugPath = '/' + (slugArray?.join('/') || '')
   const { accessToken } = useAuthStore()
 
@@ -24,6 +24,7 @@ export default function AppDynamicPage() {
       if (!res.ok) throw new Error('Failed to load app configuration')
       return res.json()
     },
+    enabled: !!appId,
   })
 
   if (isLoading) {

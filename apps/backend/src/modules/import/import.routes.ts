@@ -2,6 +2,7 @@ import { Router } from 'express'
 import multer from 'multer'
 import { requireAuth } from '../../middleware/auth.middleware'
 import { importCsv } from './import.controller'
+import { importRateLimiter } from '../../middleware/rateLimit.middleware'
 
 const router = Router({ mergeParams: true })
 
@@ -11,6 +12,6 @@ const upload = multer({
 })
 
 // Mounted at /api/apps/:appId/import/:tableName
-router.post('/:tableName', requireAuth, upload.single('file'), importCsv)
+router.post('/:tableName', requireAuth, importRateLimiter, upload.single('file'), importCsv)
 
 export default router

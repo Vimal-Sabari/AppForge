@@ -1,6 +1,8 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import helmet from 'helmet'
+import compression from 'compression'
 import authRoutes from './modules/auth/auth.routes'
 import appsRoutes from './modules/apps/apps.routes'
 import dynamicRoutes from './modules/dynamic/dynamic.routes'
@@ -8,9 +10,38 @@ import importRoutes from './modules/import/import.routes'
 import { requireAuth } from './middleware/auth.middleware'
 import { errorHandler } from './middleware/error.middleware'
 import { requestLogger } from './middleware/logging.middleware'
+import { initSentry, initSentryErrorHandler } from './config/sentry'
 
 export function createApp() {
   const app = express()
+
+  initSentry(app)
+
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'strict-dynamic'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+        },
+      },
+      hsts: {
+        maxAge: 31536000,
+        preload: true,
+      },
+    })
+  )
+
+  app.use(
+    compression({
+      threshold: 1024,
+      filter: (req, res) => {
+        if (req.headers['x-no-compression']) return false
+        return compression.filter(req, res)
+      },
+    })
+  )
 
   app.use(
     cors({
@@ -36,6 +67,7 @@ export function createApp() {
     res.json({ message: 'You have accessed a protected route', user: req.user })
   })
 
+  initSentryErrorHandler(app)
   app.use(errorHandler)
 
   return app

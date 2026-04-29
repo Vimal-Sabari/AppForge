@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { TableConfig, ComponentConfig } from 'shared-types'
 import { Edit2, Trash2, Plus, ArrowUpDown, FileDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { sanitize } from '../../lib/sanitize'
 
 interface TableRendererProps {
   tableConfig: TableConfig
@@ -68,7 +69,7 @@ export function TableRenderer({
       {/* Header Area */}
       <div className="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
         <h3 className="text-xl font-bold text-gray-900">
-          {tableConfig.displayName || tableConfig.name}
+          {sanitize(tableConfig.displayName || tableConfig.name)}
         </h3>
         <div className="flex items-center space-x-3">
           {actions.includes('create') && (
@@ -105,7 +106,7 @@ export function TableRenderer({
                   onClick={() => handleSort(field.name)}
                 >
                   <div className="flex items-center space-x-2">
-                    <span>{field.label || field.name}</span>
+                    <span>{sanitize(field.label || field.name)}</span>
                     <ArrowUpDown className="w-3 h-3 opacity-50" />
                   </div>
                 </th>
@@ -162,7 +163,7 @@ export function TableRenderer({
                       className="px-6 py-4 font-medium text-gray-700 truncate max-w-xs"
                     >
                       {row[field.name] !== null && row[field.name] !== undefined
-                        ? String(row[field.name])
+                        ? sanitize(String(row[field.name]))
                         : '-'}
                     </td>
                   ))}

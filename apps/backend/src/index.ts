@@ -1,11 +1,11 @@
-import dotenv from 'dotenv-safe'
+import { env } from './config/env'
 import { createApp } from './app'
 
-dotenv.config({ allowEmptyValues: true })
-
 const app = createApp()
-const port = process.env.PORT || 3001
+const port = env.PORT
 
 app.listen(port, () => {
-  console.log(`Backend listening on port ${port}`)
+  console.log(`🚀 Backend listening on port ${port}`)
+  console.log(`🛡️  Security: helmet enabled, rate-limiting: active`)
+  console.log(`📈 Monitoring: Sentry ${env.SENTRY_DSN ? 'active' : 'disabled (missing DSN)'}`)
 })

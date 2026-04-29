@@ -2,8 +2,9 @@ import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { redis } from '../core/redis'
 import { prisma } from '../core/prisma'
+import { env } from '../config/env'
 
-const ACCESS_SECRET = process.env.ACCESS_SECRET || 'fallback_access_secret'
+const ACCESS_SECRET = env.ACCESS_SECRET
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -40,6 +41,12 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
     // Attach user to request
     Object.assign(req, { user })
+
+    // Set Sentry user context
+    import('../config/sentry').then(({ Sentry }) => {
+      Sentry.setUser({ id: user.id, email: user.email })
+    })
+
     next()
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError) {

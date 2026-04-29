@@ -1,6 +1,26 @@
 import { Prisma } from '@prisma/client'
+import sanitizeHtml from 'sanitize-html'
 
 export class QueryBuilder {
+  /**
+   * Sanitizes all string fields in an object to prevent XSS.
+   */
+  static sanitizeData(data: Record<string, unknown>): Record<string, unknown> {
+    const sanitized: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(data)) {
+      if (typeof value === 'string') {
+        sanitized[key] = sanitizeHtml(value, {
+          allowedTags: [], // Strip all tags
+          allowedAttributes: {}, // Strip all attributes
+        })
+      } else if (value && typeof value === 'object' && !Array.isArray(value)) {
+        sanitized[key] = this.sanitizeData(value as Record<string, unknown>)
+      } else {
+        sanitized[key] = value
+      }
+    }
+    return sanitized
+  }
   /**
    * Builds the findMany query options for listing app_data rows.
    * @param appId The ID of the app.
@@ -66,12 +86,13 @@ export class QueryBuilder {
     userId: string,
     data: Record<string, unknown>
   ): Prisma.AppDataCreateArgs {
+    const sanitized = this.sanitizeData(data)
     return {
       data: {
         appId,
         tableName,
         createdBy: userId,
-        rowData: data as Prisma.InputJsonValue,
+        rowData: sanitized as Prisma.InputJsonValue,
       },
     }
   }
@@ -83,10 +104,11 @@ export class QueryBuilder {
    * @returns Prisma update input.
    */
   static buildUpdateQuery(id: string, data: Record<string, unknown>): Prisma.AppDataUpdateArgs {
+    const sanitized = this.sanitizeData(data)
     return {
       where: { id },
       data: {
-        rowData: data as Prisma.InputJsonValue,
+        rowData: sanitized as Prisma.InputJsonValue,
       },
     }
   }

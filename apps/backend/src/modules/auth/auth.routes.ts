@@ -2,8 +2,11 @@ import { Router, Request } from 'express'
 import * as authController from './auth.controller'
 import passport from 'passport'
 import './google.strategy' // Initialize passport strategy
+import { authRateLimiter } from '../../middleware/rateLimit.middleware'
 
 const router = Router()
+
+router.use(authRateLimiter)
 
 router.post('/register', authController.register)
 router.post('/login', authController.login)

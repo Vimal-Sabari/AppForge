@@ -27,6 +27,8 @@ model RefreshToken {
   expiresAt  DateTime
   isRevoked  Boolean  @default(false)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRevoked])
 }
 
 model App {
@@ -54,4 +56,6 @@ model AppData {
   user      User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@index([appId, tableName])
+  @@index([appId, tableName, createdBy])
+  @@index([createdAt(sort: Desc)])
 }

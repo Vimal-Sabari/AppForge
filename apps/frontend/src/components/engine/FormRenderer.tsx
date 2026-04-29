@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { FieldConfig } from 'shared-types'
+import { sanitize } from '../../lib/sanitize'
 
 interface FormRendererProps {
   fields: FieldConfig[]
@@ -81,7 +82,7 @@ export function FormRenderer({ fields, onSubmit, defaultValues, isLoading }: For
                 <textarea
                   {...register(field.name)}
                   disabled={isLoading}
-                  placeholder={field.label || field.name}
+                  placeholder={sanitize(field.label || field.name)}
                   className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none min-h-[100px] ${
                     hasError ? 'border-red-500' : 'border-gray-300'
                   }`}
@@ -115,7 +116,9 @@ export function FormRenderer({ fields, onSubmit, defaultValues, isLoading }: For
                     disabled={isLoading}
                     className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                   />
-                  <span className="text-sm text-gray-700">{field.label || field.name}</span>
+                  <span className="text-sm text-gray-700">
+                    {sanitize(field.label || field.name)}
+                  </span>
                 </label>
               )
               break
@@ -129,7 +132,7 @@ export function FormRenderer({ fields, onSubmit, defaultValues, isLoading }: For
                   type={field.type === 'file' ? 'file' : field.type}
                   {...register(field.name)}
                   disabled={isLoading}
-                  placeholder={field.label || field.name}
+                  placeholder={sanitize(field.label || field.name)}
                   className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                     hasError ? 'border-red-500' : 'border-gray-300'
                   }`}
@@ -153,7 +156,7 @@ export function FormRenderer({ fields, onSubmit, defaultValues, isLoading }: For
             <div key={field.name} className="flex flex-col space-y-1">
               {field.type !== 'boolean' && (
                 <label htmlFor={field.name} className="text-sm font-medium text-gray-700">
-                  {field.label || field.name}
+                  {sanitize(field.label || field.name)}
                   {field.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
               )}

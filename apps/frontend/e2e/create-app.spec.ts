@@ -16,7 +16,7 @@ test.describe('App Creation Flow', () => {
     await expect(page).toHaveURL(/\/en\/dashboard/)
 
     // 2. Create App
-    await page.click('text=New App')
+    await page.click('text=New Application')
 
     // The page loads with a sample config by default.
     // Click Validate Config
@@ -26,7 +26,7 @@ test.describe('App Creation Flow', () => {
     await expect(page.locator('text=Review Configuration')).toBeVisible()
 
     // Click Create App
-    await page.click('text=Looks good — Create App')
+    await page.click('text=Deploy Application')
 
     // Wait for the success screen (Step 3) so the API request isn't cancelled
     await expect(page.locator('text=App Created Successfully!')).toBeVisible()

@@ -1,0 +1,2 @@
+[deploy]
+startCommand = "pnpm --filter backend run prisma:migrate && pnpm --filter backend start"

@@ -33,6 +33,7 @@ const nextConfig = {
       },
     ];
   },
+  transpilePackages: ['shared-types'],
 };
 
 export default withNextIntl(nextConfig);

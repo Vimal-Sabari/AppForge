@@ -25,14 +25,14 @@ router.get(
     if (user) {
       res.cookie('refreshToken', user.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       res.cookie('accessToken', user.accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'none',
         maxAge: 15 * 60 * 1000,
       })
       res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/en/dashboard`)

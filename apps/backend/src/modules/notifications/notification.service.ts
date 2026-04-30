@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { AppConfig } from 'shared-types'
+import { AppConfig, NotificationEvent } from 'shared-types'
 
 class NotificationServiceClass {
   private transporter: nodemailer.Transporter | null = null
@@ -56,7 +56,9 @@ class NotificationServiceClass {
     if (!this.transporter) return false
 
     const events = appConfig.notifications?.events || []
-    const matchingEvents = events.filter((e) => e.trigger === trigger && e.tableRef === tableRef)
+    const matchingEvents = events.filter(
+      (e: NotificationEvent) => e.trigger === trigger && e.tableRef === tableRef
+    )
 
     if (matchingEvents.length === 0) return false
 

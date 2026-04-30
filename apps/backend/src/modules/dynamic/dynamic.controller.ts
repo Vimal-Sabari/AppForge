@@ -3,7 +3,7 @@ import { ConfigCache } from '../../core/ConfigCache'
 import { SchemaBuilder } from '../../core/SchemaBuilder'
 import { QueryBuilder } from '../../core/QueryBuilder'
 import { prisma } from '../../core/prisma'
-import { AppConfig } from 'shared-types'
+import { AppConfig, TableConfig, NotificationEvent } from 'shared-types'
 import { Prisma } from '@prisma/client'
 import { NotificationService } from '../notifications/notification.service'
 
@@ -35,7 +35,7 @@ export async function validateConfigAndTable(
       return
     }
 
-    const tableConfig = config.database.tables.find((t) => t.name === tableName)
+    const tableConfig = config.database.tables.find((t: TableConfig) => t.name === tableName)
     if (!tableConfig) {
       res.status(404).json({
         error: `Table '${tableName}' not found in app configuration`,
@@ -78,7 +78,9 @@ export async function listRecords(req: Request, res: Response, next: NextFunctio
       prisma.appData.count({ where: queryOptions.where }),
     ])
 
-    const tableConfig = dynamicReq.appConfig!.database.tables.find((t) => t.name === tableName)!
+    const tableConfig = dynamicReq.appConfig!.database.tables.find(
+      (t: TableConfig) => t.name === tableName
+    )!
     const formattedData = data.map((d) =>
       QueryBuilder.formatRowForResponse(tableConfig.fields, d.rowData as Record<string, unknown>, {
         id: d.id,
@@ -119,7 +121,9 @@ export async function getRecord(req: Request, res: Response, next: NextFunction)
       return
     }
 
-    const tableConfig = dynamicReq.appConfig!.database.tables.find((t) => t.name === tableName)!
+    const tableConfig = dynamicReq.appConfig!.database.tables.find(
+      (t: TableConfig) => t.name === tableName
+    )!
 
     res.json({
       data: QueryBuilder.formatRowForResponse(
@@ -137,7 +141,9 @@ export async function createRecord(req: Request, res: Response, next: NextFuncti
   const dynamicReq = req as DynamicRequest
   try {
     const { appId, tableName } = dynamicReq.params
-    const tableConfig = dynamicReq.appConfig!.database.tables.find((t) => t.name === tableName)!
+    const tableConfig = dynamicReq.appConfig!.database.tables.find(
+      (t: TableConfig) => t.name === tableName
+    )!
 
     // Validate schema
     const schema = SchemaBuilder.buildZodSchema(tableConfig.fields)
@@ -154,7 +160,7 @@ export async function createRecord(req: Request, res: Response, next: NextFuncti
 
     // We can just set the header if the config *has* a matching event.
     const hasEvent = dynamicReq.appConfig?.notifications?.events?.some(
-      (e) => e.trigger === 'onCreate' && e.tableRef === tableName
+      (e: NotificationEvent) => e.trigger === 'onCreate' && e.tableRef === tableName
     )
     if (hasEvent) {
       const sent = await NotificationService.send(
@@ -182,7 +188,9 @@ export async function updateRecord(req: Request, res: Response, next: NextFuncti
   const dynamicReq = req as DynamicRequest
   try {
     const { appId, tableName, id } = dynamicReq.params
-    const tableConfig = dynamicReq.appConfig!.database.tables.find((t) => t.name === tableName)!
+    const tableConfig = dynamicReq.appConfig!.database.tables.find(
+      (t: TableConfig) => t.name === tableName
+    )!
 
     const whereClause: Prisma.AppDataWhereInput = { id, appId, tableName }
     if (dynamicReq.appConfig?.auth.userScoped && dynamicReq.user?.id) {
@@ -197,8 +205,6 @@ export async function updateRecord(req: Request, res: Response, next: NextFuncti
     }
 
     const schema = SchemaBuilder.buildZodSchema(tableConfig.fields)
-    // Use deep partial schema for update? Prompt says "validate body, patch row_data".
-    // A standard patch might only contain partial fields. Let's make the schema partial for update.
     const strippedData = SchemaBuilder.stripUnknownFields(dynamicReq.body, tableConfig.fields)
     const validatedData = schema.partial().parse(strippedData)
 
@@ -209,7 +215,7 @@ export async function updateRecord(req: Request, res: Response, next: NextFuncti
     const record = await prisma.appData.update(query)
 
     const hasEvent = dynamicReq.appConfig?.notifications?.events?.some(
-      (e) => e.trigger === 'onUpdate' && e.tableRef === tableName
+      (e: NotificationEvent) => e.trigger === 'onUpdate' && e.tableRef === tableName
     )
     if (hasEvent) {
       const sent = await NotificationService.send(
@@ -253,7 +259,7 @@ export async function deleteRecord(req: Request, res: Response, next: NextFuncti
     await prisma.appData.delete(query)
 
     const hasEvent = dynamicReq.appConfig?.notifications?.events?.some(
-      (e) => e.trigger === 'onDelete' && e.tableRef === tableName
+      (e: NotificationEvent) => e.trigger === 'onDelete' && e.tableRef === tableName
     )
     if (hasEvent) {
       const sent = await NotificationService.send(

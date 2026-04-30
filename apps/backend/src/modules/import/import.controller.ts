@@ -5,6 +5,7 @@ import { SchemaBuilder } from '../../core/SchemaBuilder'
 import { prisma } from '../../core/prisma'
 import { z } from 'zod'
 import { Prisma } from '@prisma/client'
+import { TableConfig, FieldConfig } from 'shared-types'
 
 interface RowError {
   row: number
@@ -14,8 +15,7 @@ interface RowError {
 export async function importCsv(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { appId, tableName } = req.params
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const userId = (req as any).user?.id
+    const userId = (req as any).user?.id // eslint-disable-line @typescript-eslint/no-explicit-any
 
     if (!userId) {
       res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' })
@@ -41,7 +41,7 @@ export async function importCsv(req: Request, res: Response, next: NextFunction)
       return
     }
 
-    const tableConfig = config.database.tables.find((t) => t.name === tableName)
+    const tableConfig = config.database.tables.find((t: TableConfig) => t.name === tableName)
     if (!tableConfig) {
       res.status(404).json({
         error: `Table '${tableName}' not found in app configuration`,
@@ -91,8 +91,8 @@ export async function importCsv(req: Request, res: Response, next: NextFunction)
     const warnings: string[] = []
 
     // AUTO-MAPPING if not provided
-    const fieldNames = tableConfig.fields.map((f) => f.name)
-    const fieldNamesLower = fieldNames.map((f) => f.toLowerCase())
+    const fieldNames = tableConfig.fields.map((f: FieldConfig) => f.name)
+    const fieldNamesLower = fieldNames.map((f: string) => f.toLowerCase())
 
     const effectiveMapping: Record<string, string> = {}
 

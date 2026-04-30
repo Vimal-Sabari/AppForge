@@ -24,6 +24,7 @@ export async function register(req: Request, res: Response) {
     res.status(201).json({
       user: { email: data.email },
       accessToken,
+      refreshToken,
     })
   } catch (error: unknown) {
     if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
@@ -53,7 +54,7 @@ export async function login(req: Request, res: Response) {
 
     res.cookie('accessToken', accessToken, ACCESS_COOKIE_OPTIONS)
     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
-    res.json({ user: { email: data.email }, accessToken })
+    res.json({ user: { email: data.email }, accessToken, refreshToken })
   } catch (error: unknown) {
     if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
       res.status(400).json({

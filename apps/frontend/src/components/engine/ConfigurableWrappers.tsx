@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ComponentConfig, AppConfig } from 'shared-types'
+import { ComponentConfig, AppConfig, FieldConfig } from 'shared-types'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { FormRenderer } from './FormRenderer'
 import { TableRenderer } from './TableRenderer'

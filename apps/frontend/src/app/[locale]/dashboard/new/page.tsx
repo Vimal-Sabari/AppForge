@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import dynamic from 'next/dynamic'
 import { Check, ChevronRight, Play, AlertTriangle, AlertCircle, Sparkles } from 'lucide-react'
 import { AppConfig } from 'shared-types'
+import { useLocale } from 'next-intl'
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then((mod) => mod.default), {
   ssr: false,
@@ -51,6 +52,7 @@ const SAMPLE_CONFIG = `{
 export default function NewAppPage() {
   const { accessToken } = useAuthStore()
   const queryClient = useQueryClient()
+  const locale = useLocale()
   const [step, setStep] = useState(1)
   const [jsonInput, setJsonInput] = useState(SAMPLE_CONFIG)
   const [validationResult, setValidationResult] = useState<{

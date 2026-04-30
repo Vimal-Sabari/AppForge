@@ -28,12 +28,10 @@ test.describe('App Creation Flow', () => {
     // Click Create App
     await page.click('text=Looks good — Create App')
 
-    // 3. Verify App listed
-    // The sample app name is "Employee Directory"
-    await page.goto('/en/dashboard')
-    await expect(page.locator('text=Employee Directory').first()).toBeVisible()
+    // Wait for the success screen (Step 3) so the API request isn't cancelled
+    await expect(page.locator('text=App Created Successfully!')).toBeVisible()
 
-    // 4. Use App
+    // 4. Use App (click the button on the success page)
     await page.click('text=Open App')
     await expect(page).toHaveURL(/\/en\/dashboard\/[a-zA-Z0-9-]+\//)
   })

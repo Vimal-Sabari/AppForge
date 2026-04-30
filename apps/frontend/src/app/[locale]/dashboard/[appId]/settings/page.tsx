@@ -23,7 +23,7 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react').then((mod) => 
 
 export default function AppSettingsPage({ params }: { params: { appId: string } }) {
   const router = useRouter()
-  const { accessToken } = useAuthStore()
+  const { accessToken, isAuthenticated } = useAuthStore()
   const queryClient = useQueryClient()
   const appId = params?.appId
 
@@ -37,12 +37,13 @@ export default function AppSettingsPage({ params }: { params: { appId: string } 
     queryKey: ['apps', appId],
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/apps/${appId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+        credentials: 'include',
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
       })
       if (!res.ok) throw new Error('Failed to fetch app')
       return res.json()
     },
-    enabled: !!accessToken,
+    enabled: isAuthenticated && !!appId,
   })
 
   useEffect(() => {
@@ -55,9 +56,10 @@ export default function AppSettingsPage({ params }: { params: { appId: string } 
     mutationFn: async (configStr: string) => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/apps/${appId}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
         body: configStr,
       })
@@ -82,7 +84,8 @@ export default function AppSettingsPage({ params }: { params: { appId: string } 
     mutationFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/apps/${appId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${accessToken}` },
+        credentials: 'include',
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
       })
       if (!res.ok) throw new Error('Failed to delete app')
       return res.json()

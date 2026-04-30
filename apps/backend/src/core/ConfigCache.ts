@@ -49,7 +49,7 @@ export class ConfigCache {
    */
   static async invalidateConfig(appId: string): Promise<void> {
     try {
-      await redis.del(`app:${appId}:config`)
+      await redis.del(`app:${appId}:config_v2`)
     } catch (err) {
       console.error('Redis cache delete error:', err)
     }

@@ -26,14 +26,20 @@ router.get(
       res.cookie('refreshToken', user.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
-      // Redirect to frontend with access token in hash or query param (since we need it on client side)
-      // A better way is to set a short-lived cookie for access token just for the redirect, or send it in URL.
-      res.redirect(`http://localhost:3000/dashboard?token=${user.accessToken}`)
+      res.cookie('accessToken', user.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 15 * 60 * 1000,
+      })
+      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/en/dashboard`)
     } else {
-      res.redirect('http://localhost:3000/login?error=oauth_failed')
+      res.redirect(
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/en/login?error=oauth_failed`
+      )
     }
   }
 )

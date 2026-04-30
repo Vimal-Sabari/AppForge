@@ -15,6 +15,9 @@ interface TableRendererProps {
   onAdd?: () => void
   onImport?: () => void
   actions?: ComponentConfig['actions']
+  sortField?: string | null
+  sortDirection?: 'asc' | 'desc'
+  onSort?: (field: string, direction: 'asc' | 'desc') => void
 }
 
 export function TableRenderer({
@@ -26,12 +29,19 @@ export function TableRenderer({
   onAdd,
   onImport,
   actions = [],
+  sortField: externalSortField,
+  sortDirection: externalSortDirection,
+  onSort,
 }: TableRendererProps) {
   const t = useTranslations('table')
   const commonT = useTranslations('common')
 
-  const [sortField, setSortField] = useState<string | null>(null)
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [internalSortField, setInternalSortField] = useState<string | null>(null)
+  const [internalSortDirection, setInternalSortDirection] = useState<'asc' | 'desc'>('asc')
+
+  const sortField = externalSortField !== undefined ? externalSortField : internalSortField
+  const sortDirection =
+    externalSortDirection !== undefined ? externalSortDirection : internalSortDirection
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   const fields =
@@ -42,16 +52,19 @@ export function TableRenderer({
         : []
 
   const handleSort = (field: string) => {
-    if (sortField === field) {
-      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    const newDirection = sortField === field && sortDirection === 'asc' ? 'desc' : 'asc'
+
+    if (onSort) {
+      onSort(field, newDirection)
     } else {
-      setSortField(field)
-      setSortDirection('asc')
+      setInternalSortField(field)
+      setInternalSortDirection(newDirection)
     }
   }
 
   const sortedData = React.useMemo(() => {
-    if (!sortField) return data
+    // If onSort is provided, we assume server-side sorting or handled externally
+    if (onSort || !sortField) return data
     return [...data].sort((a, b) => {
       const aVal = a[sortField]
       const bVal = b[sortField]
@@ -62,13 +75,13 @@ export function TableRenderer({
       const comparison = aVal < bVal ? -1 : 1
       return sortDirection === 'asc' ? comparison : -comparison
     })
-  }, [data, sortField, sortDirection])
+  }, [data, sortField, sortDirection, onSort])
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div className="w-full bg-white rounded-[16px] shadow-[0_10px_25px_rgba(0,0,0,0.08)] border border-[#E2E8F0] overflow-hidden transition-all duration-300">
       {/* Header Area */}
-      <div className="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
-        <h3 className="text-xl font-bold text-gray-900">
+      <div className="p-5 border-b border-[#E2E8F0] flex justify-between items-center bg-[#F8FAFC]">
+        <h3 className="text-xl font-bold text-[#0F172A]">
           {sanitize(tableConfig.displayName || tableConfig.name)}
         </h3>
         <div className="flex items-center space-x-3">
@@ -76,14 +89,14 @@ export function TableRenderer({
             <>
               <button
                 onClick={onImport}
-                className="flex items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all shadow-sm active:scale-95"
+                className="flex items-center px-4 py-2 text-sm font-semibold text-[#64748B] bg-white border border-[#E2E8F0] rounded-[10px] hover:bg-[#F1F5F9] transition-all active:scale-95"
               >
                 <FileDown className="w-4 h-4 mr-2" />
                 Import
               </button>
               <button
                 onClick={onAdd}
-                className="flex items-center px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 active:scale-95"
+                className="flex items-center px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-[#4F46E5] to-[#2563EB] rounded-[12px] hover:brightness-110 transition-all shadow-[0_4px_15px_rgba(79,70,229,0.3)] active:scale-95"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {t('addNew')}
@@ -95,14 +108,14 @@ export function TableRenderer({
 
       {/* Table Area */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left text-gray-600">
-          <thead className="text-xs text-gray-500 uppercase bg-gray-50/50 font-bold tracking-wider">
+        <table className="w-full text-sm text-left text-[#64748B]">
+          <thead className="text-xs text-[#0F172A] uppercase bg-[#F1F5F9] font-bold tracking-wider">
             <tr>
               {fields.map((field) => (
                 <th
                   key={field.name}
                   scope="col"
-                  className="px-6 py-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="px-6 py-4 cursor-pointer hover:bg-[#E2E8F0] transition-colors"
                   onClick={() => handleSort(field.name)}
                 >
                   <div className="flex items-center space-x-2">
@@ -118,18 +131,18 @@ export function TableRenderer({
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-[#E2E8F0]">
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={`skeleton-${i}`} className="bg-white">
                   {fields.map((f, j) => (
                     <td key={j} className="px-6 py-4">
-                      <div className="h-4 bg-gray-100 rounded-lg animate-pulse w-3/4"></div>
+                      <div className="h-4 bg-[#F8FAFC] rounded-lg animate-pulse w-3/4"></div>
                     </td>
                   ))}
                   {(actions.includes('update') || actions.includes('delete')) && (
                     <td className="px-6 py-4 text-right">
-                      <div className="h-8 bg-gray-100 rounded-lg animate-pulse w-8 ml-auto"></div>
+                      <div className="h-8 bg-[#F8FAFC] rounded-lg animate-pulse w-8 ml-auto"></div>
                     </td>
                   )}
                 </tr>
@@ -141,10 +154,10 @@ export function TableRenderer({
                     fields.length +
                     (actions.includes('update') || actions.includes('delete') ? 1 : 0)
                   }
-                  className="px-6 py-20 text-center text-gray-400"
+                  className="px-6 py-20 text-center text-[#94A3B8]"
                 >
                   <div className="flex flex-col items-center justify-center space-y-4">
-                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
+                    <div className="w-16 h-16 bg-[#F8FAFC] rounded-full flex items-center justify-center">
                       <Plus className="w-8 h-8 opacity-20" />
                     </div>
                     <p className="font-medium">{t('empty')}</p>
@@ -155,7 +168,7 @@ export function TableRenderer({
               sortedData.map((row, i) => (
                 <tr
                   key={String(row.id || i)}
-                  className="bg-white hover:bg-blue-50/30 transition-colors"
+                  className={`${i % 2 === 0 ? 'bg-white' : 'bg-[#F9FAFB]'} hover:bg-[#EEF2FF] transition-colors`}
                 >
                   {fields.map((field) => (
                     <td

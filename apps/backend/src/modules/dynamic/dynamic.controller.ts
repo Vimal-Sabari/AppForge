@@ -69,27 +69,23 @@ export async function listRecords(req: Request, res: Response, next: NextFunctio
       sortBy: sortBy as string,
       sortDir: sortDir as 'asc' | 'desc',
       filters: filters as Record<string, string>,
+      userScoped: dynamicReq.appConfig?.auth.userScoped,
+      userId: dynamicReq.user?.id,
     })
-
-    if (dynamicReq.appConfig?.auth.userScoped && dynamicReq.user?.id) {
-      queryOptions.where = {
-        ...queryOptions.where,
-        createdBy: dynamicReq.user.id,
-      }
-    }
 
     const [data, total] = await Promise.all([
       prisma.appData.findMany(queryOptions),
       prisma.appData.count({ where: queryOptions.where }),
     ])
 
-    // Map output to look like standard rows
-    const formattedData = data.map((d) => ({
-      id: d.id,
-      ...(d.rowData as Record<string, unknown>),
-      createdAt: d.createdAt,
-      updatedAt: d.updatedAt,
-    }))
+    const tableConfig = dynamicReq.appConfig!.database.tables.find((t) => t.name === tableName)!
+    const formattedData = data.map((d) =>
+      QueryBuilder.formatRowForResponse(tableConfig.fields, d.rowData as Record<string, unknown>, {
+        id: d.id,
+        createdAt: d.createdAt,
+        updatedAt: d.updatedAt,
+      })
+    )
 
     res.json({
       data: formattedData,
@@ -123,13 +119,14 @@ export async function getRecord(req: Request, res: Response, next: NextFunction)
       return
     }
 
+    const tableConfig = dynamicReq.appConfig!.database.tables.find((t) => t.name === tableName)!
+
     res.json({
-      data: {
-        id: record.id,
-        ...(record.rowData as Record<string, unknown>),
-        createdAt: record.createdAt,
-        updatedAt: record.updatedAt,
-      },
+      data: QueryBuilder.formatRowForResponse(
+        tableConfig.fields,
+        record.rowData as Record<string, unknown>,
+        { id: record.id, createdAt: record.createdAt, updatedAt: record.updatedAt }
+      ),
     })
   } catch (error) {
     next(error)
@@ -160,20 +157,21 @@ export async function createRecord(req: Request, res: Response, next: NextFuncti
       (e) => e.trigger === 'onCreate' && e.tableRef === tableName
     )
     if (hasEvent) {
-      res.setHeader('X-Notification-Sent', 'true')
-      NotificationService.send(
+      const sent = await NotificationService.send(
         dynamicReq.appConfig!,
         'onCreate',
         tableName,
         record.rowData as Record<string, unknown>
       )
+      res.setHeader('X-Notification-Sent', String(sent))
     }
 
     res.status(201).json({
-      data: {
-        id: record.id,
-        ...(record.rowData as Record<string, unknown>),
-      },
+      data: QueryBuilder.formatRowForResponse(
+        tableConfig.fields,
+        record.rowData as Record<string, unknown>,
+        { id: record.id, createdAt: record.createdAt, updatedAt: record.updatedAt }
+      ),
     })
   } catch (error) {
     next(error)
@@ -214,20 +212,21 @@ export async function updateRecord(req: Request, res: Response, next: NextFuncti
       (e) => e.trigger === 'onUpdate' && e.tableRef === tableName
     )
     if (hasEvent) {
-      res.setHeader('X-Notification-Sent', 'true')
-      NotificationService.send(
+      const sent = await NotificationService.send(
         dynamicReq.appConfig!,
         'onUpdate',
         tableName,
         record.rowData as Record<string, unknown>
       )
+      res.setHeader('X-Notification-Sent', String(sent))
     }
 
     res.json({
-      data: {
-        id: record.id,
-        ...(record.rowData as Record<string, unknown>),
-      },
+      data: QueryBuilder.formatRowForResponse(
+        tableConfig.fields,
+        record.rowData as Record<string, unknown>,
+        { id: record.id, createdAt: record.createdAt, updatedAt: record.updatedAt }
+      ),
     })
   } catch (error) {
     next(error)
@@ -257,13 +256,13 @@ export async function deleteRecord(req: Request, res: Response, next: NextFuncti
       (e) => e.trigger === 'onDelete' && e.tableRef === tableName
     )
     if (hasEvent) {
-      res.setHeader('X-Notification-Sent', 'true')
-      NotificationService.send(
+      const sent = await NotificationService.send(
         dynamicReq.appConfig!,
         'onDelete',
         tableName,
         existing.rowData as Record<string, unknown>
       )
+      res.setHeader('X-Notification-Sent', String(sent))
     }
 
     res.json({ data: { success: true } })

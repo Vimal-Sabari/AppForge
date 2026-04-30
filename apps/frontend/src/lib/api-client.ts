@@ -23,6 +23,7 @@ export async function apiClient(endpoint: string, options: RequestOptions = {}) 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...fetchOptions,
       signal: controller.signal,
+      credentials: fetchOptions.credentials || 'include',
       headers: {
         'Content-Type': 'application/json',
         ...fetchOptions.headers,

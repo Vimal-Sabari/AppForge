@@ -5,8 +5,13 @@ import * as authService from './auth.service'
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  sameSite: 'lax' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+}
+
+const ACCESS_COOKIE_OPTIONS = {
+  ...COOKIE_OPTIONS,
+  maxAge: 15 * 60 * 1000,
 }
 
 export async function register(req: Request, res: Response) {
@@ -14,11 +19,11 @@ export async function register(req: Request, res: Response) {
     const data = RegisterSchema.parse(req.body)
     const { accessToken, refreshToken } = await authService.register(data)
 
+    res.cookie('accessToken', accessToken, ACCESS_COOKIE_OPTIONS)
     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
     res.status(201).json({
-      accessToken,
-      refreshToken,
       user: { email: data.email },
+      accessToken,
     })
   } catch (error: unknown) {
     if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
@@ -46,8 +51,9 @@ export async function login(req: Request, res: Response) {
     const data = LoginSchema.parse(req.body)
     const { accessToken, refreshToken } = await authService.login(data)
 
+    res.cookie('accessToken', accessToken, ACCESS_COOKIE_OPTIONS)
     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
-    res.json({ accessToken })
+    res.json({ user: { email: data.email }, accessToken })
   } catch (error: unknown) {
     if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
       res.status(400).json({
@@ -75,7 +81,8 @@ export async function refresh(req: Request, res: Response) {
     const tokens = await authService.refresh(refreshToken)
 
     res.cookie('refreshToken', tokens.refreshToken, COOKIE_OPTIONS)
-    res.json({ accessToken: tokens.accessToken })
+    res.cookie('accessToken', tokens.accessToken, ACCESS_COOKIE_OPTIONS)
+    res.json({ refreshed: true })
   } catch (error: unknown) {
     res.clearCookie('refreshToken')
     res.status(401).json({
@@ -89,10 +96,11 @@ export async function logout(req: Request, res: Response) {
   try {
     const refreshToken = req.cookies?.refreshToken
     const authHeader = req.headers.authorization
-    const accessToken = authHeader?.split(' ')[1] || ''
+    const accessToken = authHeader?.split(' ')[1] || req.cookies?.accessToken || ''
 
     await authService.logout(refreshToken, accessToken)
 
+    res.clearCookie('accessToken')
     res.clearCookie('refreshToken')
     res.json({ message: 'Logged out successfully' })
   } catch (error: unknown) {

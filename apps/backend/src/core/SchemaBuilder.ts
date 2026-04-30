@@ -20,8 +20,12 @@ export class SchemaBuilder {
         case 'date':
         case 'file':
           if (field.type === 'email') fieldSchema = z.string().email()
-          else if (field.type === 'date') fieldSchema = z.string().datetime()
-          else if (field.type === 'textarea') fieldSchema = z.string().max(5000)
+          else if (field.type === 'date') {
+            // Support both ISO datetime and YYYY-MM-DD strings
+            fieldSchema = z.string().refine((val) => !isNaN(Date.parse(val)), {
+              message: 'Invalid date format',
+            })
+          } else if (field.type === 'textarea') fieldSchema = z.string().max(5000)
           else fieldSchema = z.string()
 
           if (field.validation?.min !== undefined)
@@ -30,14 +34,18 @@ export class SchemaBuilder {
             fieldSchema = (fieldSchema as z.ZodString).max(field.validation.max)
           break
         case 'number':
-          fieldSchema = z.number()
+          fieldSchema = z.coerce.number()
           if (field.validation?.min !== undefined)
             fieldSchema = (fieldSchema as z.ZodNumber).min(field.validation.min)
           if (field.validation?.max !== undefined)
             fieldSchema = (fieldSchema as z.ZodNumber).max(field.validation.max)
           break
         case 'boolean':
-          fieldSchema = z.boolean()
+          fieldSchema = z.preprocess((value) => {
+            if (value === 'true') return true
+            if (value === 'false') return false
+            return value
+          }, z.boolean())
           break
         case 'select':
           if (field.options && field.options.length > 0) {

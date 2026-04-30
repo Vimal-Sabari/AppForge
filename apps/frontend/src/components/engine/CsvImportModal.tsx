@@ -74,9 +74,8 @@ export function CsvImportModal({ tableConfig, appId, onClose, onSuccess }: CsvIm
         `${process.env.NEXT_PUBLIC_API_URL}/api/apps/${appId}/import/${tableConfig.name}`,
         {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          credentials: 'include',
+          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
           body: formData,
         }
       )

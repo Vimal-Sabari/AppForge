@@ -32,7 +32,92 @@ export function parseConfig(raw: unknown): {
     return { config: null, warnings, errors }
   }
 
-  const normalized = { ...(raw as Record<string, unknown>) } as DeepPartialConfig
+  // ── Pre-normalization: map simplified / alternative formats to full schema ──
+  const input = { ...(raw as Record<string, unknown>) }
+
+  // 1. Top-level `pages` → `ui.pages`
+  if (Array.isArray(input['pages']) && !input['ui']) {
+    input['ui'] = { theme: 'light', language: 'en', pages: input['pages'] }
+    delete input['pages']
+  }
+
+  // 2. Top-level `dataSources` → `database.tables`
+  if (Array.isArray(input['dataSources']) && !input['database']) {
+    const tables = (input['dataSources'] as Record<string, unknown>[]).map((ds) => ({
+      name: ds['name'] || 'table',
+      fields: [],
+    }))
+    input['database'] = { tables }
+    delete input['dataSources']
+  }
+
+  // 3. Normalize pages inside ui
+  const uiSection = input['ui'] as Record<string, unknown> | undefined
+  if (uiSection && Array.isArray(uiSection['pages'])) {
+    uiSection['pages'] = (uiSection['pages'] as Record<string, unknown>[]).map((page, pIdx) => {
+      const p = { ...page }
+      // page.name → page.title
+      if (!p['title'] && p['name']) {
+        p['title'] = p['name']
+        delete p['name']
+      }
+      if (Array.isArray(p['components'])) {
+        p['components'] = (p['components'] as Record<string, unknown>[]).map((comp, cIdx) => {
+          const c = { ...comp }
+          // dataSource → tableRef
+          if (!c['tableRef'] && c['dataSource']) {
+            c['tableRef'] = c['dataSource']
+            delete c['dataSource']
+          }
+          // Rich field objects → array of field name strings
+          if (Array.isArray(c['fields'])) {
+            const fields = c['fields'] as unknown[]
+            if (fields.length > 0 && typeof fields[0] === 'object') {
+              c['fields'] = (fields as Record<string, unknown>[]).map(
+                (f) => (f['key'] || f['name'] || `field_${cIdx}`) as string
+              )
+            }
+          }
+          // actions: array of objects → array of type strings
+          if (Array.isArray(c['actions'])) {
+            const actions = c['actions'] as unknown[]
+            if (actions.length > 0 && typeof actions[0] === 'object') {
+              c['actions'] = (actions as Record<string, unknown>[]).map((a) =>
+                String((a as Record<string, unknown>)['type'] || 'read')
+              )
+            }
+          }
+          if (!c['id']) c['id'] = `comp-${pIdx}-${cIdx}`
+          return c
+        })
+      }
+      return p
+    })
+  }
+
+  // 4. Field type coercions inside database.tables
+  const dbSection = input['database'] as Record<string, unknown> | undefined
+  if (dbSection && Array.isArray(dbSection['tables'])) {
+    const typeMap: Record<string, string> = {
+      checkbox: 'boolean',
+      string: 'text',
+      integer: 'number',
+      float: 'number',
+      datetime: 'date',
+      timestamp: 'date',
+    }
+    ;(dbSection['tables'] as Record<string, unknown>[]).forEach((table) => {
+      if (Array.isArray(table['fields'])) {
+        ;(table['fields'] as Record<string, unknown>[]).forEach((field) => {
+          const t = field['type'] as string
+          if (t && typeMap[t]) field['type'] = typeMap[t]
+        })
+      }
+    })
+  }
+  // ── End pre-normalization ─────────────────────────────────────────────────
+
+  const normalized = input as DeepPartialConfig
 
   if (!normalized.version) {
     warnings.push('version missing, defaulted to "1.0"')
@@ -65,7 +150,12 @@ export function parseConfig(raw: unknown): {
     } else {
       normalized.ui.pages.forEach((page, pIdx) => {
         if (!page.id) page.id = `page-${pIdx}`
-        if (!page.path) page.path = `/${page.id}`
+        // Normalize path: strip leading slash so all paths are stored consistently (e.g. 'home' not '/home')
+        if (!page.path) {
+          page.path = page.id // e.g. 'page-0'
+        } else {
+          page.path = page.path.replace(/^\/+/, '')
+        }
         if (!page.title) page.title = `Page ${pIdx}`
         if (!Array.isArray(page.components)) {
           warnings.push(`ui.pages[${pIdx}].components is invalid, defaulting to []`)
@@ -104,6 +194,15 @@ export function parseConfig(raw: unknown): {
             )
           ) {
             warnings.push(`unknown field type '${field.type}', coerced to 'text'`)
+            field.type = 'text'
+          }
+          if (
+            field.type === 'select' &&
+            (!('options' in field) ||
+              !Array.isArray((field as { options?: unknown }).options) ||
+              (field as { options?: unknown[] }).options?.length === 0)
+          ) {
+            warnings.push(`select field '${field.name}' has no options, coerced to 'text'`)
             field.type = 'text'
           }
         })

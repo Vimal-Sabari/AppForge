@@ -63,4 +63,18 @@ describe('QueryBuilder', () => {
     expect(query.where).toHaveProperty('AND')
     expect(Array.isArray(query.where?.AND)).toBe(true)
   })
+
+  it('should format rows to current config fields only', () => {
+    const formatted = QueryBuilder.formatRowForResponse(
+      [
+        { name: 'title', type: 'text' },
+        { name: 'status', type: 'text' },
+      ],
+      { title: 'Build', removed: 'hidden' },
+      { id: 'row-1' }
+    )
+
+    expect(formatted).toEqual({ id: 'row-1', title: 'Build', status: null })
+    expect(formatted).not.toHaveProperty('removed')
+  })
 })

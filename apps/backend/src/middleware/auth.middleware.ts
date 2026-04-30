@@ -9,14 +9,13 @@ const ACCESS_SECRET = env.ACCESS_SECRET
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      res
-        .status(401)
-        .json({ error: 'Missing or invalid authorization header', code: 'UNAUTHORIZED' })
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined
+    const token = bearerToken || req.cookies?.accessToken
+
+    if (!token) {
+      res.status(401).json({ error: 'Missing authentication token', code: 'UNAUTHORIZED' })
       return
     }
-
-    const token = authHeader.split(' ')[1]
 
     // Check Redis blocklist
     const isBlocked = await redis.get(`bl_${token}`)

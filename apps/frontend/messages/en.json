@@ -16,7 +16,8 @@
   "form": {
     "submit": "Submit",
     "required": "This field is required",
-    "invalid": "Invalid input"
+    "invalid": "Invalid input",
+    "selectOption": "Select an option"
   },
   "import": {
     "upload": "Upload CSV",
@@ -27,6 +28,61 @@
   "nav": {
     "dashboard": "Dashboard",
     "settings": "Settings",
+    "premium": "Premium",
     "logout": "Logout"
+  },
+  "auth": {
+    "loginTitle": "Login to AppForge",
+    "registerTitle": "Register for AppForge",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Login",
+    "registerButton": "Register",
+    "loggingIn": "Logging in...",
+    "registering": "Registering...",
+    "googleSignIn": "Sign in with Google",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?"
+  },
+  "dashboard": {
+    "title": "Your Applications",
+    "subtitle": "Manage and monitor your generated ecosystems.",
+    "newApp": "New Application",
+    "active": "Active",
+    "description": "Custom tailored application engine powering dynamic workflows and real-time data processing.",
+    "pages": "PAGES",
+    "page": "PAGE",
+    "configure": "Configure",
+    "launch": "Launch App",
+    "noAppsTitle": "No applications found",
+    "noAppsSubtitle": "Start your journey by creating a high-performance application from a simple configuration.",
+    "buildFirst": "Build Your First App"
+  },
+  "newApp": {
+    "title": "Create New App",
+    "subtitle": "Generate a fully functional application from a JSON configuration or natural language.",
+    "pasteJson": "Paste JSON",
+    "uploadJson": "Upload .json",
+    "loadSample": "LOAD SAMPLE",
+    "validate": "Validate Config",
+    "reviewTitle": "Review Configuration",
+    "appName": "App Name",
+    "pages": "Pages",
+    "tables": "Tables",
+    "errors": "Configuration Errors",
+    "warnings": "Warnings (Auto-fixed)",
+    "back": "Back to Editor",
+    "launch": "Deploy Application",
+    "creating": "Creating...",
+    "successTitle": "App Created Successfully!",
+    "successSubtitle": "Your backend APIs and frontend UI have been generated and are ready to use.",
+    "editConfig": "Edit Config",
+    "openApp": "Open App"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "unsupported": "Unsupported field type"
   }
 }

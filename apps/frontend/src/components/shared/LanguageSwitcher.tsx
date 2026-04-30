@@ -3,7 +3,6 @@
 import React from 'react'
 import { useLocale } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
-import { Globe } from 'lucide-react'
 
 export function LanguageSwitcher() {
   const locale = useLocale()
@@ -20,26 +19,47 @@ export function LanguageSwitcher() {
   }
 
   return (
-    <div className="flex items-center space-x-2 bg-gray-100 p-1 rounded-xl border border-gray-200 shadow-inner">
+    <div className="flex items-center space-x-1 bg-[#F1F5F9] p-1 rounded-xl border border-[#E2E8F0] shadow-inner">
       <button
         onClick={() => toggleLanguage('en')}
-        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-          locale === 'en' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+        className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
+          locale === 'en'
+            ? 'bg-white text-[#4F46E5] shadow-sm'
+            : 'text-[#64748B] hover:text-[#0F172A]'
         }`}
       >
         EN
       </button>
       <button
         onClick={() => toggleLanguage('ta')}
-        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-          locale === 'ta' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+        className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
+          locale === 'ta'
+            ? 'bg-white text-[#4F46E5] shadow-sm'
+            : 'text-[#64748B] hover:text-[#0F172A]'
         }`}
       >
         தமிழ்
       </button>
-      <div className="pl-1 pr-2">
-        <Globe className="w-3.5 h-3.5 text-gray-400" />
-      </div>
+      <button
+        onClick={() => toggleLanguage('hi')}
+        className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
+          locale === 'hi'
+            ? 'bg-white text-[#4F46E5] shadow-sm'
+            : 'text-[#64748B] hover:text-[#0F172A]'
+        }`}
+      >
+        हिंदी
+      </button>
+      <button
+        onClick={() => toggleLanguage('ml')}
+        className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
+          locale === 'ml'
+            ? 'bg-white text-[#4F46E5] shadow-sm'
+            : 'text-[#64748B] hover:text-[#0F172A]'
+        }`}
+      >
+        മലയാളം
+      </button>
     </div>
   )
 }

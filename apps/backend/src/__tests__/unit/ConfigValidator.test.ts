@@ -88,7 +88,7 @@ describe('ConfigValidator', () => {
     expect(result.valid).toBe(false)
   })
 
-  it('should reject config with no pages', () => {
+  it('should allow config with no pages for empty-state rendering', () => {
     const config = {
       version: '1.0',
       name: 'No Pages',
@@ -97,7 +97,8 @@ describe('ConfigValidator', () => {
     }
 
     const result = ConfigValidator.validateConfig(config as unknown)
-    expect(result.valid).toBe(false)
+    expect(result.valid).toBe(true)
+    expect(result.config.ui.pages).toEqual([])
   })
 
   it('should normalize partial fields correctly', () => {
@@ -117,5 +118,21 @@ describe('ConfigValidator', () => {
     expect(normalized.version).toBe('1.0')
     expect(normalized.ui.pages[0].id).toBeDefined()
     expect(normalized.database.tables[0].name).toBeDefined()
+  })
+
+  it('should coerce select fields without options to text', () => {
+    const config = {
+      version: '1.0',
+      name: 'Select App',
+      ui: { pages: [] },
+      database: {
+        tables: [{ name: 'tasks', fields: [{ name: 'status', type: 'select' }] }],
+      },
+    }
+
+    const result = ConfigValidator.validateConfig(config as unknown)
+    expect(result.valid).toBe(true)
+    expect(result.config.database.tables[0].fields[0].type).toBe('text')
+    expect(result.warnings.some((warning) => warning.includes('has no options'))).toBe(true)
   })
 })

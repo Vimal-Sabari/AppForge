@@ -1,6 +1,7 @@
 import React from 'react'
 import { PageConfig, AppConfig } from 'shared-types'
 import { ComponentRegistry } from './ComponentRegistry'
+import { EngineErrorBoundary } from './EngineErrorBoundary'
 
 interface DashboardRendererProps {
   page: PageConfig
@@ -26,7 +27,9 @@ export function DashboardRenderer({ page, appConfig, appId }: DashboardRendererP
 
           return (
             <div key={config.id} className={colSpan}>
-              <Component config={config} appConfig={appConfig} appId={appId} />
+              <EngineErrorBoundary componentId={config.id}>
+                <Component config={config} appConfig={appConfig} appId={appId} />
+              </EngineErrorBoundary>
             </div>
           )
         })}

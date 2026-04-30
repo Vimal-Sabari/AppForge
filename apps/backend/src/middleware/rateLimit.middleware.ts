@@ -10,7 +10,7 @@ export const authRateLimiter = rateLimit({
     sendCommand: (...args: string[]) => redis.call(...args),
   }),
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 100,
   keyGenerator: (req: Request) => ipKeyGenerator(req.ip || '0.0.0.0', 6),
   skip: () => env.NODE_ENV === 'test',
   message: { error: 'Too many registration/login attempts, please try again after 15 minutes' },

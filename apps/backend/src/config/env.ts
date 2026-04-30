@@ -14,6 +14,8 @@ const envSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   FRONTEND_URL: z.string().url(),
   BACKEND_URL: z.string().url(),
+  OPENAI_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
   SENTRY_DSN: z.string().url().optional(),
 })
 

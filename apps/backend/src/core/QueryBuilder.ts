@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client'
 import sanitizeHtml from 'sanitize-html'
+import { FieldConfig } from 'shared-types'
 
 export class QueryBuilder {
   /**
@@ -38,6 +39,8 @@ export class QueryBuilder {
       sortBy?: string
       sortDir?: 'asc' | 'desc'
       filters?: Record<string, string | number | boolean>
+      userScoped?: boolean
+      userId?: string
     }
   ): Prisma.AppDataFindManyArgs {
     const page = Math.max(1, params.page || 1)
@@ -49,6 +52,10 @@ export class QueryBuilder {
       tableName,
     }
 
+    if (params.userScoped && params.userId) {
+      where.createdBy = params.userId
+    }
+
     if (params.filters && Object.keys(params.filters).length > 0) {
       where.AND = Object.entries(params.filters).map(([key, value]) => ({
         rowData: {
@@ -58,11 +65,19 @@ export class QueryBuilder {
       }))
     }
 
-    // Prisma doesn't natively support ordering by JSON fields inside findMany.
-    // So we just order by createdAt if sortBy is not a known root column.
     let orderBy: Prisma.AppDataOrderByWithRelationInput = { createdAt: 'desc' }
-    if (params.sortBy === 'createdAt' || params.sortBy === 'updatedAt') {
-      orderBy = { [params.sortBy]: params.sortDir || 'desc' }
+    if (params.sortBy) {
+      if (params.sortBy === 'createdAt' || params.sortBy === 'updatedAt') {
+        orderBy = { [params.sortBy]: params.sortDir || 'desc' }
+      } else {
+        // Sort by dynamic JSON field
+        orderBy = {
+          rowData: {
+            path: [params.sortBy],
+            sort: params.sortDir || 'asc',
+          },
+        }
+      }
     }
 
     return {
@@ -124,5 +139,36 @@ export class QueryBuilder {
     return {
       where: { id, appId },
     }
+  }
+
+  /**
+   * Formats stored JSON data to match the current table config.
+   * Missing configured fields are returned as null and removed fields are omitted.
+   */
+  static formatRowForResponse(
+    fields: FieldConfig[],
+    rowData: Record<string, unknown>,
+    meta?: { id?: string; createdAt?: Date; updatedAt?: Date }
+  ): Record<string, unknown> {
+    const formatted: Record<string, unknown> = {}
+
+    if (meta?.id) {
+      formatted.id = meta.id
+    }
+
+    for (const field of fields) {
+      formatted[field.name] = Object.prototype.hasOwnProperty.call(rowData, field.name)
+        ? rowData[field.name]
+        : null
+    }
+
+    if (meta?.createdAt) {
+      formatted.createdAt = meta.createdAt
+    }
+    if (meta?.updatedAt) {
+      formatted.updatedAt = meta.updatedAt
+    }
+
+    return formatted
   }
 }

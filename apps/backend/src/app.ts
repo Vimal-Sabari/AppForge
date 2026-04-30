@@ -8,6 +8,7 @@ import authRoutes from './modules/auth/auth.routes'
 import appsRoutes from './modules/apps/apps.routes'
 import dynamicRoutes from './modules/dynamic/dynamic.routes'
 import importRoutes from './modules/import/import.routes'
+import aiRoutes from './modules/ai/ai.routes'
 import { requireAuth } from './middleware/auth.middleware'
 import { errorHandler } from './middleware/error.middleware'
 import { requestLogger } from './middleware/logging.middleware'
@@ -47,7 +48,11 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: env.FRONTEND_URL || 'http://localhost:3000',
+      origin: [
+        'http://127.0.0.1:3000',
+        'http://localhost:3000',
+        env.FRONTEND_URL || 'http://127.0.0.1:3000',
+      ],
       credentials: true,
       exposedHeaders: ['X-Notification-Sent'],
     })
@@ -60,6 +65,7 @@ export function createApp() {
   app.use('/api/apps', appsRoutes)
   app.use('/api/apps/:appId/data/:tableName', dynamicRoutes)
   app.use('/api/apps/:appId/import', importRoutes)
+  app.use('/api/ai', aiRoutes)
 
   app.get('/health', async (req, res) => {
     try {

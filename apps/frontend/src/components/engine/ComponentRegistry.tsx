@@ -15,6 +15,10 @@ class Registry {
   private components = new Map<string, React.ComponentType<ComponentProps>>()
 
   constructor() {
+    this.registerDefaults()
+  }
+
+  private registerDefaults() {
     this.register('form', ConfigurableForm)
     this.register('table', ConfigurableTable)
     this.register('dashboard', ConfigurableDashboard)

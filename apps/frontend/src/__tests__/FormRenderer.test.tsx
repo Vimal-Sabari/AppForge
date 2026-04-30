@@ -59,6 +59,6 @@ describe('FormRenderer', () => {
 
     const button = screen.getByRole('button')
     expect(button).toBeDisabled()
-    expect(screen.getByText(/Submitting/i)).toBeInTheDocument()
+    expect(screen.getByText(/loading/i)).toBeInTheDocument()
   })
 })

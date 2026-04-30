@@ -65,7 +65,8 @@ export class QueryBuilder {
       }))
     }
 
-    let orderBy: Prisma.AppDataOrderByWithRelationInput = { createdAt: 'desc' }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let orderBy: any = { createdAt: 'desc' }
     if (params.sortBy) {
       if (params.sortBy === 'createdAt' || params.sortBy === 'updatedAt') {
         orderBy = { [params.sortBy]: params.sortDir || 'desc' }

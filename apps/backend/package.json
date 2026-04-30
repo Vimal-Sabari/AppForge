@@ -31,7 +31,7 @@
     "passport-google-oauth20": "^2.0.0",
     "rate-limit-redis": "^4.3.1",
     "sanitize-html": "^2.17.3",
-    "shared-types": "workspace:*",
+    "shared-types": "file:../../packages/shared-types",
     "zod": "^4.3.6"
   },
   "devDependencies": {
